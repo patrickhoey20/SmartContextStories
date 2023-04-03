@@ -1,3 +1,3 @@
 # Smart context stories !
 
-- [x] Make GitHub repo
+- [x] Make GitHub repo!!
