@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import './HomePage.css'
 import { useDbData } from "../../utilities/firebase.js"
+import LeftOffPage from '../LeftOffPage/LeftOffPage'
+import UpdatesPage from '../UpdatesPage/UpdatesPage'
+
 
 export default function HomePage() {
     const [data, error] = useDbData('/');
@@ -11,6 +14,7 @@ export default function HomePage() {
         }
     }, [data])
     return (<>
-                <h1>{JSON.stringify(realdata)}</h1>
+                <LeftOffPage/>
+                <UpdatesPage/>
             </>)
 }
