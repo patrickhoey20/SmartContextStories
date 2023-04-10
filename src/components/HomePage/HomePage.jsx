@@ -14,7 +14,7 @@ export default function HomePage() {
         }
     }, [data])
     return (<>
-                <LeftOffPage/>
-                <UpdatesPage/>
+                <LeftOffPage className="leftoff-card"/>
+                <UpdatesPage className="updates-card"/>
             </>)
 }

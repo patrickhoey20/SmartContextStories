@@ -1,0 +1,12 @@
+.leftoff-card {
+    border-radius: 10px;
+    background-color: rgb(230, 227, 227);
+    color: #242424;
+    width: 80%;
+    margin-left: 10%;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
