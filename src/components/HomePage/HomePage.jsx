@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import './HomePage.css'
 import { useDbData } from "../../utilities/firebase.js"
-import LeftOffPage from '../LeftOffPage/LeftOffPage'
-import UpdatesPage from '../UpdatesPage/UpdatesPage'
+import { LeftOffPage } from '../LeftOffPage/LeftOffPage'
+import { UpdatesPage } from '../UpdatesPage/UpdatesPage'
 
 
 export default function HomePage() {
@@ -15,6 +15,7 @@ export default function HomePage() {
     }, [data])
     return (<>
                 <LeftOffPage/>
-                <UpdatesPage/>
+                <UpdatesPage recent={true}/>
+                <UpdatesPage recent={false}/>
             </>)
 }
