@@ -14,4 +14,4 @@ export async function ChatGPTCall(prompt) {
     })
     const data = await response.json();
     return data;
-}  
+}
