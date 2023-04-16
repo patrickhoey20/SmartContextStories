@@ -32,6 +32,7 @@ export default function HomePage() {
             console.log(chatGPTResponse)
         }
     }, [chatGPTResponse])
+    // REACT CODE - FRONTEND STUFF
     return (<>
                 <LeftOffPage/>
                 <UpdatesPage recent={true}/>
