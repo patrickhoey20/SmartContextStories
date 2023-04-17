@@ -3,7 +3,7 @@ import './HomePage.css'
 import { useDbData } from "../../utilities/firebase.js"
 import { LeftOffPage } from '../LeftOffPage/LeftOffPage'
 import { UpdatesPage } from '../UpdatesPage/UpdatesPage'
-import { ChatGPTCall, getCurrentURL } from "../../utilities/api"
+import { ChatGPTCall } from "../../utilities/api"
 
 export default function HomePage() {
     // FIREBASE STUFF
@@ -15,7 +15,7 @@ export default function HomePage() {
         }
     }, [data])
 
-    // CHAT GPT API STUFF -- commented out to not waste money
+    // EXAMPLE CHAT GPT API CALL
     // const [chatGPTResponse, setChatGPTResponse] = useState(null)
     // async function GPTResponse(prompt) {
     //     const response = await ChatGPTCall(prompt)
@@ -34,7 +34,10 @@ export default function HomePage() {
     //     }
     // }, [chatGPTResponse])
 
-    // GET CURRENT URL
+    // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
+    let topic = null
+    let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opiod Epidemic, Trump Indictment and Arrest, 
+                  2024 United States Presidential Election, The Stock Market`
     const [curr_url, setCurrURL] = useState(null)
     useEffect(() => {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -42,11 +45,27 @@ export default function HomePage() {
             setCurrURL(activeTab.url)
           });
     }, [])
+    const [chatGPTTopic, setChatGPTTopic] = useState(null)
+    async function GPTResponse(prompt) {
+        const response = await ChatGPTCall(prompt)
+        setChatGPTTopic(response.choices[0].text.replace(/\n/g, ''))
+    }
+    let run = false
     useEffect(() => {
-        if (curr_url) {
+        if (! run && curr_url) {
+            run = true
             console.log(curr_url)
+            GPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
+                         topics given in this list matches with the content of the website that the URL links to. Output
+                         the name of the topic exactly as formatted in the list. If none of the topics match the content
+                         of the site, then output N/A.`)
         }
     }, [curr_url])
+    useEffect(() => {
+        if (chatGPTTopic) {
+            console.log(chatGPTTopic)
+        }
+    }, [chatGPTTopic])
 
     // REACT CODE - FRONTEND STUFF
     return (<>
