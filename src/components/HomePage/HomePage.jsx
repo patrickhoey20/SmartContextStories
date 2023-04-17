@@ -14,45 +14,27 @@ export default function HomePage() {
     useEffect(() => {
         if (data) {
             setUserData(data.users[curr_user])
-            console.log(data.users[curr_user])
+            console.log("setting user_data to", data.users[curr_user])
         }
     }, [data])
 
-    // EXAMPLE CHAT GPT API CALL
-    // const [chatGPTResponse, setChatGPTResponse] = useState(null)
-    // async function GPTResponse(prompt) {
-    //     const response = await ChatGPTCall(prompt)
-    //     setChatGPTResponse(response.choices[0].text.replace(/\n/g, ''))
-    // }
-    // let run = false
-    // useEffect(() => { // useEffect so it only runs on page load (one API call per page load)
-    //     if (! run) {
-    //         run = true
-    //         GPTResponse('What is the meaning of life?')
-    //     }
-    // }, [])
-    // useEffect(() => {
-    //     if (chatGPTResponse) {
-    //         console.log(chatGPTResponse)
-    //     }
-    // }, [chatGPTResponse])
-
     // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
-    // const [topic, setTopic] = useState(null)
-    let topic = null
     let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opioid Epidemic, Trump Indictment and Arrest, 
                   2024 United States Presidential Election, The Stock Market`
     const [curr_url, setCurrURL] = useState(null)
     useEffect(() => {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             var activeTab = tabs[0];
+            console.log("activeTab", activeTab)
             setCurrURL(activeTab.url)
+            console.log("setting curr_url to", activeTab.url)
           });
     }, [])
     const [chatGPTTopic, setChatGPTTopic] = useState(null)
     async function GPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
         setChatGPTTopic(response.choices[0].text.replace(/\n/g, ''))
+        console.log("setting chatGPTTopic to", response.choices[0].text.replace(/\n/g, ''))
     }
     let run = false
     useEffect(() => {
@@ -67,7 +49,7 @@ export default function HomePage() {
     useEffect(() => {
         if (chatGPTTopic) {
             console.log("test")
-            console.log(chatGPTTopic)
+            console.log("chatGPTTopic", chatGPTTopic)
         }
     }, [chatGPTTopic])
 
@@ -79,18 +61,15 @@ export default function HomePage() {
         fetch(url)
             .then(response => response.json())
             .then(data => setArticles(data.response.docs))
-            .catch(error => console.log(error));
+            .catch(error => console.log("error", error));
     }, []);
 
-    console.log(articles)
+    console.log("articles", articles)
 
     // REACT CODE - FRONTEND STUFF
-    // if (topic && (user_data != [])) {
-    if (user_data) {
-        console.log('user_data', user_data)
+    if (chatGPTTopic && user_data) {
         return (<>
-                    <LeftOffPage last_url={user_data["The Stock Market"].last_article_url}/>
-                    <LeftOffPage />
+                    <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url}/>
                     <UpdatesPage recent={true}/>
                     <UpdatesPage recent={false}/>
                 </>)
