@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import './HomePage.css'
-import { useDbData } from "../../utilities/firebase.js"
-import { LeftOffPage } from '../LeftOffPage/LeftOffPage'
-import { UpdatesPage } from '../UpdatesPage/UpdatesPage'
-import { ChatGPTCall } from "../../utilities/api"
+import './HomePage.css';
+import { useDbData } from "../../utilities/firebase.js";
+import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
+import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
+import { ChatGPTCall } from "../../utilities/api";
+import axios from "axios"; // todo: do we need this????
 
 export default function HomePage() {
     // FIREBASE STUFF
@@ -64,9 +65,23 @@ export default function HomePage() {
     }, [curr_url])
     useEffect(() => {
         if (chatGPTTopic) {
+            console.log("test")
             console.log(chatGPTTopic)
         }
     }, [chatGPTTopic])
+
+    // STEP 3: Get info from NYT API relavant to the current topic
+    const [articles, setArticles] = useState([]);
+    useEffect(() => {
+        const apiKey = import.meta.env.VITE_NYT_API_KEY;
+        const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=new+york+times&api-key=${apiKey}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => setArticles(data.response.docs))
+            .catch(error => console.log(error));
+    }, []);
+
+    console.log(articles)
 
     // REACT CODE - FRONTEND STUFF
     return (<>
