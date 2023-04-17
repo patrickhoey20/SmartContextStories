@@ -10,7 +10,7 @@ export default function HomePage() {
     // FIREBASE STUFF
     var curr_user = 'Joe Shmoe' // change this based on user id from Google later
     const [data, error] = useDbData('/');
-    const [user_data, setUserData] = useState([])
+    const [user_data, setUserData] = useState(null)
     useEffect(() => {
         if (data) {
             setUserData(data.users[curr_user])
@@ -38,8 +38,9 @@ export default function HomePage() {
     // }, [chatGPTResponse])
 
     // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
+    // const [topic, setTopic] = useState(null)
     let topic = null
-    let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opiod Epidemic, Trump Indictment and Arrest, 
+    let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opioid Epidemic, Trump Indictment and Arrest, 
                   2024 United States Presidential Election, The Stock Market`
     const [curr_url, setCurrURL] = useState(null)
     useEffect(() => {
@@ -84,9 +85,16 @@ export default function HomePage() {
     console.log(articles)
 
     // REACT CODE - FRONTEND STUFF
-    return (<>
-                <LeftOffPage/>
-                <UpdatesPage recent={true}/>
-                <UpdatesPage recent={false}/>
-            </>)
+    // if (topic && (user_data != [])) {
+    if (user_data) {
+        console.log('user_data', user_data)
+        return (<>
+                    <LeftOffPage last_url={user_data["The Stock Market"].last_article_url}/>
+                    <LeftOffPage />
+                    <UpdatesPage recent={true}/>
+                    <UpdatesPage recent={false}/>
+                </>)
+    } else {
+        return (<h1 className="loading-message">Loading...</h1>)
+    }
 }

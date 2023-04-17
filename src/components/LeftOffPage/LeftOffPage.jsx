@@ -4,6 +4,7 @@ import { useDbData } from "../../utilities/firebase.js";
 import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
+    const { last_url } = props;
     return (
         <div className="centering">
             <div className="leftoff-card">
@@ -25,6 +26,13 @@ export const LeftOffPage = (props) => {
                             InputProps={{
                                 disableUnderline: true,
                             }}
+                            inputProps={{
+                                style: { 
+                                    fontFamily: 'Iowan Old Style Bold', 
+                                    fontSize: '1.5rem' 
+                                }
+                            }}
+                            value={last_url ? last_url : "No URL Found"}
                         />
                     </div>
                     <h5 className="card-h5">Date Viewed:</h5>
