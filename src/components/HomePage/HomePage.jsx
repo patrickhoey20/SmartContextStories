@@ -7,11 +7,13 @@ import { ChatGPTCall } from "../../utilities/api"
 
 export default function HomePage() {
     // FIREBASE STUFF
+    var curr_user = 'Joe Shmoe' // change this based on user id from Google later
     const [data, error] = useDbData('/');
-    const [realdata, setRealData] = useState([])
+    const [user_data, setUserData] = useState([])
     useEffect(() => {
         if (data) {
-            setRealData(data)
+            setUserData(data.users[curr_user])
+            console.log(data.users[curr_user])
         }
     }, [data])
 
@@ -54,7 +56,6 @@ export default function HomePage() {
     useEffect(() => {
         if (! run && curr_url) {
             run = true
-            console.log(curr_url)
             GPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
                          topics given in this list matches with the content of the website that the URL links to. Output
                          the name of the topic exactly as formatted in the list. If none of the topics match the content
