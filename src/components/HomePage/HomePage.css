@@ -1,4 +1,21 @@
 .loading-message {
     color: white;
-    margin-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    font-family: 'Iowan Old Style Bold';
+}
+
+.loading-div {
+    text-align: center;
+}
+
+.curr-user-banner {
+    color: white;
+    font-family: 'Iowan Old Style Bold';
+    margin-left: 8.5%;
+    font-size: 15px;
+}
+
+.curr-user-div {
+    margin-top: 15px;
 }

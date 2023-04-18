@@ -85,11 +85,16 @@ export default function HomePage() {
     // REACT CODE - FRONTEND STUFF
     if (chatGPTTopic && user_data) {
         return (<>
+                    <div className="curr-user-div">
+                        <div className="curr-user-banner">Current User: {curr_user}</div>
+                    </div>
                     <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url}/>
                     <UpdatesPage recent={true}/>
                     <UpdatesPage recent={false}/>
                 </>)
     } else {
-        return (<h1 className="loading-message">Loading...</h1>)
+        return (<div className="loading-div">
+                    <h1 className="loading-message">Loading...</h1>
+                </div>)
     }
 }
