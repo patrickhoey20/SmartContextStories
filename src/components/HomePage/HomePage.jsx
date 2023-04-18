@@ -45,16 +45,40 @@ export default function HomePage() {
         }
     }, [curr_url])
 
+    // Helper for NYT API date formatting
+    function dateToString(date) {
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        const ymd = `${year}${month}${day}`;
+        return ymd;
+    }
+    
     // STEP 3: Get info from NYT API relavant to the current topic
     const [articles, setArticles] = useState([]);
     useEffect(() => {
-        const apiKey = import.meta.env.VITE_NYT_API_KEY;
-        const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=new+york+times&api-key=${apiKey}`;
-        fetch(url)
-            .then(response => response.json())
-            .then(data => setArticles(data.response.docs))
-            .catch(error => console.log("error", error));
-    }, []);
+        if (chatGPTTopic && user_data) {
+            const apiKey = import.meta.env.VITE_NYT_API_KEY;
+            var start_date = new Date(user_data[chatGPTTopic].last_date);
+            start_date = dateToString(start_date)
+            var end_date = new Date();
+            end_date = dateToString(end_date)
+            // This isn't currently filtering by start date, end date, or relavance
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}1&end_date=${end_date}&sort=relevance`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => setArticles(data.response.docs))
+                .catch(error => console.log("error", error));
+        }
+    }, [chatGPTTopic, user_data]);
+    useEffect(() => {
+        if (articles.length > 0) {
+            console.log('articles', articles)
+            for (let i = 0; i < articles.length; i++) {
+                console.log(i, articles[i].pub_date)
+            }
+        }
+    }, [articles])
 
     // REACT CODE - FRONTEND STUFF
     if (chatGPTTopic && user_data) {
