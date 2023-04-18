@@ -55,6 +55,8 @@ export default function HomePage() {
     }
     
     // STEP 3: Get info from NYT API relavant to the current topic
+    // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
+    // an article on this topic and today
     const [articles, setArticles] = useState([]);
     useEffect(() => {
         if (chatGPTTopic && user_data) {
