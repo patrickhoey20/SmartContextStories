@@ -22,12 +22,10 @@ export default function HomePage() {
     let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opioid Epidemic, Trump Indictment and Arrest, 
                   2024 United States Presidential Election, The Stock Market`
     const [curr_url, setCurrURL] = useState(null)
-    useEffect(() => {
+    useEffect(() => { // get current URL
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             var activeTab = tabs[0];
-            console.log("activeTab", activeTab)
             setCurrURL(activeTab.url)
-            console.log("setting curr_url to", activeTab.url)
           });
     }, [])
     const [chatGPTTopic, setChatGPTTopic] = useState(null)
@@ -37,7 +35,7 @@ export default function HomePage() {
         console.log("setting chatGPTTopic to", response.choices[0].text.replace(/\n/g, ''))
     }
     let run = false
-    useEffect(() => {
+    useEffect(() => { // find topic using URL and Chat GPT
         if (! run && curr_url) {
             run = true
             GPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
@@ -46,12 +44,6 @@ export default function HomePage() {
                          of the site, then output N/A.`)
         }
     }, [curr_url])
-    useEffect(() => {
-        if (chatGPTTopic) {
-            console.log("test")
-            console.log("chatGPTTopic", chatGPTTopic)
-        }
-    }, [chatGPTTopic])
 
     // STEP 3: Get info from NYT API relavant to the current topic
     const [articles, setArticles] = useState([]);
@@ -63,8 +55,6 @@ export default function HomePage() {
             .then(data => setArticles(data.response.docs))
             .catch(error => console.log("error", error));
     }, []);
-
-    console.log("articles", articles)
 
     // REACT CODE - FRONTEND STUFF
     if (chatGPTTopic && user_data) {

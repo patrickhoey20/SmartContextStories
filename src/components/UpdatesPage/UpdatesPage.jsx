@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import './UpdatesPage.css'
-import { useDbData } from "../../utilities/firebase.js"
 
 export const UpdatesPage = (props) => {
     const { recent } = props;

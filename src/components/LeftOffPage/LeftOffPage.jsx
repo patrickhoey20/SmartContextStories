@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";;
 import './LeftOffPage.css';
-import { useDbData } from "../../utilities/firebase.js";
 import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
