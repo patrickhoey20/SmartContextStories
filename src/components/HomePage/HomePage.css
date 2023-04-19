@@ -1,7 +1,6 @@
 .loading-message {
     color: white;
-    padding-top: 25px;
-    padding-bottom: 25px;
+    padding: 25px;
     font-family: 'Iowan Old Style Bold';
 }
 

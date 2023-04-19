@@ -59,7 +59,7 @@ export default function HomePage() {
     // an article on this topic and today
     const [articles, setArticles] = useState([]);
     useEffect(() => {
-        if (chatGPTTopic && user_data) {
+        if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = new Date(user_data[chatGPTTopic].last_date);
             start_date = dateToString(start_date)
@@ -84,14 +84,23 @@ export default function HomePage() {
 
     // REACT CODE - FRONTEND STUFF
     if (chatGPTTopic && user_data) {
-        return (<>
-                    <div className="curr-user-div">
-                        <div className="curr-user-banner">Current User: {curr_user}</div>
-                    </div>
-                    <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url}/>
-                    <UpdatesPage recent={true}/>
-                    <UpdatesPage recent={false}/>
-                </>)
+        if (! chatGPTTopic.includes('N/A')) {
+            return (<>
+                        <div className="curr-user-div">
+                            <div className="curr-user-banner">Current User: {curr_user}</div>
+                        </div>
+                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url}/>
+                        <UpdatesPage recent={true}/>
+                        <UpdatesPage recent={false}/>
+                    </>)
+        } else {
+            console.log('hello')
+            return (
+                <div className="loading-div">
+                    <h1 className="loading-message">Current tab doesn't match a topic from our list!</h1>
+                </div>
+            )
+        }
     } else {
         return (<div className="loading-div">
                     <h1 className="loading-message">Loading...</h1>
