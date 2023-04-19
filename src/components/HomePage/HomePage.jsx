@@ -4,7 +4,6 @@ import { useDbData } from "../../utilities/firebase.js";
 import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
 import { ChatGPTCall } from "../../utilities/api";
-import axios from "axios"; // todo: do we need this????
 
 export default function HomePage() {
     // FIREBASE STUFF
@@ -29,16 +28,16 @@ export default function HomePage() {
           });
     }, [])
     const [chatGPTTopic, setChatGPTTopic] = useState(null)
-    async function GPTResponse(prompt) {
+    async function TopicGPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
         setChatGPTTopic(response.choices[0].text.replace(/\n/g, ''))
         console.log("setting chatGPTTopic to", response.choices[0].text.replace(/\n/g, ''))
     }
-    let run = false
+    let runGPTTopic = false
     useEffect(() => { // find topic using URL and Chat GPT
-        if (! run && curr_url) {
-            run = true
-            GPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
+        if (!runGPTTopic && curr_url) {
+            runGPTTopic = true
+            TopicGPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
                          topics given in this list matches with the content of the website that the URL links to. Output
                          the name of the topic exactly as formatted in the list. If none of the topics match the content
                          of the site, then output N/A.`)
@@ -54,10 +53,11 @@ export default function HomePage() {
         return ymd;
     }
     
-    // STEP 3: Get info from NYT API relavant to the current topic
+    // STEP 4: Get info from NYT API relavant to the current topic
     // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
     // an article on this topic and today
     const [articles, setArticles] = useState([]);
+    var articlesTextContent = {} // dictionary of the form {article_url: full_text_content}
     useEffect(() => {
         if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
@@ -77,24 +77,50 @@ export default function HomePage() {
         if (articles.length > 0) {
             console.log('articles', articles)
             for (let i = 0; i < articles.length; i++) {
-                console.log(i, articles[i].pub_date)
+                // note: for now setting the value to the article's lead paragraph
+                // need to change to full text content later... potentially
+                articlesTextContent[articles[i].web_url] = articles[i].lead_paragraph
+                console.log("article", i, "publication date", articles[i].pub_date)
+                console.log("article", i, "lead paragraph", articles[i].lead_paragraph)
             }
         }
     }, [articles])
 
+    // STEP 4.5: Get full text content of each article
+    // todo: do. for now we will just use article snippets
+
+    // STEP 5: Use Chat-GPT to compress NYT information into four bullet points
+    // Note: Currently only generating content for the "left off" section
+    const [leftOffResponse, setLeftOffResponse] = useState(null)
+    async function LeftOffGPTResponse(prompt) {
+        const response = await ChatGPTCall(prompt)
+        setLeftOffResponse(response.choices[0].text.replace(/\n/g, ''))
+        console.log("setting leftOffResponse to", response.choices[0].text.replace(/\n/g, ''))
+    }
+    let runLeftOffGPT = false
+    useEffect(() => {
+        if (!runLeftOffGPT && articles.length > 0) {
+            runLeftOffGPT = true
+            LeftOffGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContent).join(', ')}.`)
+        }
+    }, [articles])
+
+    // split the response into bullet points
+    var leftOffBullets = leftOffResponse ? leftOffResponse.split('- ') : null
+    if (leftOffBullets) leftOffBullets.shift()
+
     // REACT CODE - FRONTEND STUFF
-    if (chatGPTTopic && user_data) {
+    if (chatGPTTopic && user_data && leftOffBullets) {
         if (! chatGPTTopic.includes('N/A')) {
             return (<>
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
-                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url}/>
+                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={leftOffBullets}/>
                         <UpdatesPage recent={true}/>
                         <UpdatesPage recent={false}/>
                     </>)
         } else {
-            console.log('hello')
             return (
                 <div className="loading-div">
                     <h1 className="loading-message">Current tab doesn't match a topic from our list!</h1>

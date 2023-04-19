@@ -9,7 +9,7 @@ export async function ChatGPTCall(prompt) {
       },
       body: JSON.stringify({
         prompt: prompt,
-        max_tokens: 100,
+        max_tokens: 300,
       }),
     })
     const data = await response.json();

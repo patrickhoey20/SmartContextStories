@@ -3,7 +3,8 @@ import './LeftOffPage.css';
 import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
-    const { last_url } = props;
+    const { last_url, bullet_points } = props;
+    console.log("bullet_points", bullet_points)
     return (
         <div className="centering">
             <div className="leftoff-card">
@@ -37,10 +38,10 @@ export const LeftOffPage = (props) => {
                     <h5 className="card-h5">Date Viewed:</h5>
                     <h4 className="card-h4">Summary of What You've Already Read:</h4>
                     <ul className="card-list">
-                        <li className="card-list-item"><span className="card-list-item-span"></span></li>
-                        <li className="card-list-item"><span className="card-list-item-span"></span></li>
-                        <li className="card-list-item"><span className="card-list-item-span"></span></li>
-                        <li className="card-list-item"><span className="card-list-item-span"></span></li>
+                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[0]}</span></li>
+                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[1]}</span></li>
+                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[2]}</span></li>
+                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[3]}</span></li>
                     </ul>
                 </div>
             </div>
