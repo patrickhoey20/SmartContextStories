@@ -85,47 +85,93 @@ export default function HomePage() {
             }
         }
     }, [articles])
+    // Grabs the 10 most recent NYT articles on a given topic between the user's last date of viewing
+    // an article on this topic and today
+    const [articles_recent, setArticlesRecent] = useState([]);
+    var articlesTextContentRecent = {} // dictionary of the form {article_url: full_text_content}
+    useEffect(() => {
+        if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
+            const apiKey = import.meta.env.VITE_NYT_API_KEY;
+            var start_date = new Date(user_data[chatGPTTopic].last_date);
+            start_date = dateToString(start_date)
+            var end_date = new Date();
+            end_date = dateToString(end_date)
+            // This isn't currently filtering by start date, end date, or relavance
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}1&end_date=${end_date}&sort=newest`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => setArticlesRecent(data.response.docs))
+                .catch(error => console.log("error", error));
+        }
+    }, [chatGPTTopic, user_data]);
+    useEffect(() => {
+        if (articles_recent.length > 0) {
+            console.log('articles_recent', articles_recent)
+            for (let i = 0; i < articles_recent.length; i++) {
+                // note: for now setting the value to the article's lead paragraph
+                // need to change to full text content later... potentially
+                articlesTextContentRecent[articles_recent[i].web_url] = articles_recent[i].lead_paragraph
+                console.log("article", i, "publication date", articles_recent[i].pub_date)
+                console.log("article", i, "lead paragraph", articles_recent[i].lead_paragraph)
+            }
+        }
+    }, [articles_recent])
 
     // STEP 4.5: Get full text content of each article
     // todo: do. for now we will just use article snippets
 
     // STEP 5: Use Chat-GPT to compress NYT information into four bullet points
-    // Note: Currently only generating content for the "left off" section
+    // Updates - by relevance
     const [relevantUpdatesResponse, setRelevantUpdatesResponse] = useState(null)
     async function RelevantUpdatesGPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
         setRelevantUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
-        console.log("setting leftOffResponse to", response.choices[0].text.replace(/\n/g, ''))
     }
-    let runLeftOffGPT = false
+    let runRelevant = false
     useEffect(() => {
-        if (!runLeftOffGPT && articles.length > 0) {
-            runLeftOffGPT = true
+        if (!runRelevant && articles.length > 0) {
+            runRelevant = true
             RelevantUpdatesGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContent).join(', ')}.`)
         }
     }, [articles])
+    // Updates - by recency
+    const [recentUpdatesResponse, setRecentUpdatesResponse] = useState(null)
+    async function RecentUpdatesGPTResponse(prompt) {
+        const response = await ChatGPTCall(prompt)
+        setRecentUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
+    }
+    let runRecent = false
+    useEffect(() => {
+        if (!runRecent && articles_recent.length > 0) {
+            runRecent = true
+            RecentUpdatesGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContentRecent).join(', ')}.`)
+        }
+    }, [articles_recent])
 
     // split the response into bullet points
     var relevantUpdatesBullets = relevantUpdatesResponse ? relevantUpdatesResponse.split('- ') : null
     if (relevantUpdatesBullets) relevantUpdatesBullets.shift()
+    var recentUpdatesBullets = recentUpdatesResponse ? recentUpdatesResponse.split('- ') : null
+    if (recentUpdatesBullets) recentUpdatesBullets.shift()
 
     // REACT CODE - FRONTEND STUFF
-    if (chatGPTTopic && user_data && relevantUpdatesBullets) {
+    if (chatGPTTopic && chatGPTTopic.includes('N/A')) {
+        return (
+            <div className="loading-div">
+                <h1 className="loading-message">Current tab doesn't match a topic from our list!</h1>
+            </div>
+        )
+    }
+    if (chatGPTTopic && user_data && relevantUpdatesBullets && recentUpdatesBullets) {
         if (! chatGPTTopic.includes('N/A')) {
             return (<>
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
                         <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={["", "", "", ""]}/>
-                        <UpdatesPage recent={true} bullet_points={["", "", "", ""]}/>
+                        <UpdatesPage recent={true} bullet_points={recentUpdatesBullets}/>
                         <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets}/>
                     </>)
-        } else {
-            return (
-                <div className="loading-div">
-                    <h1 className="loading-message">Current tab doesn't match a topic from our list!</h1>
-                </div>
-            )
         }
     } else {
         return (<div className="loading-div">

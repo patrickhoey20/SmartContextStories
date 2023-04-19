@@ -41,7 +41,8 @@
 
 .card-list-item {
     padding-bottom: 1%;
-    font-size: 1.5rem;
+    font-size: 1rem;
+    vertical-align: middle;
 }
 
 .card-list-item-span {
