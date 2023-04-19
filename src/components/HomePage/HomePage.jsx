@@ -57,11 +57,13 @@ export default function HomePage() {
     // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
     // an article on this topic and today
     const [articles, setArticles] = useState([]);
+    const [date_viewed, setDateViewed] = useState(null);
     var articlesTextContent = {} // dictionary of the form {article_url: full_text_content}
     useEffect(() => {
         if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = new Date(user_data[chatGPTTopic].last_date);
+            setDateViewed(user_data[chatGPTTopic].last_date)
             start_date = dateToString(start_date)
             var end_date = new Date();
             end_date = dateToString(end_date)
@@ -168,7 +170,7 @@ export default function HomePage() {
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
-                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={["", "", "", ""]}/>
+                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed}/>
                         <UpdatesPage recent={true} bullet_points={recentUpdatesBullets}/>
                         <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets}/>
                     </>)
