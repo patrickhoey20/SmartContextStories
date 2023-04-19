@@ -4,7 +4,6 @@ import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
     const { last_url, bullet_points } = props;
-    console.log("bullet_points", bullet_points)
     return (
         <div className="centering">
             <div className="leftoff-card">

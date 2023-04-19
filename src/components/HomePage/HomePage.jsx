@@ -91,34 +91,34 @@ export default function HomePage() {
 
     // STEP 5: Use Chat-GPT to compress NYT information into four bullet points
     // Note: Currently only generating content for the "left off" section
-    const [leftOffResponse, setLeftOffResponse] = useState(null)
-    async function LeftOffGPTResponse(prompt) {
+    const [relevantUpdatesResponse, setRelevantUpdatesResponse] = useState(null)
+    async function RelevantUpdatesGPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
-        setLeftOffResponse(response.choices[0].text.replace(/\n/g, ''))
+        setRelevantUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
         console.log("setting leftOffResponse to", response.choices[0].text.replace(/\n/g, ''))
     }
     let runLeftOffGPT = false
     useEffect(() => {
         if (!runLeftOffGPT && articles.length > 0) {
             runLeftOffGPT = true
-            LeftOffGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContent).join(', ')}.`)
+            RelevantUpdatesGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContent).join(', ')}.`)
         }
     }, [articles])
 
     // split the response into bullet points
-    var leftOffBullets = leftOffResponse ? leftOffResponse.split('- ') : null
-    if (leftOffBullets) leftOffBullets.shift()
+    var relevantUpdatesBullets = relevantUpdatesResponse ? relevantUpdatesResponse.split('- ') : null
+    if (relevantUpdatesBullets) relevantUpdatesBullets.shift()
 
     // REACT CODE - FRONTEND STUFF
-    if (chatGPTTopic && user_data && leftOffBullets) {
+    if (chatGPTTopic && user_data && relevantUpdatesBullets) {
         if (! chatGPTTopic.includes('N/A')) {
             return (<>
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
-                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={leftOffBullets}/>
-                        <UpdatesPage recent={true}/>
-                        <UpdatesPage recent={false}/>
+                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={["", "", "", ""]}/>
+                        <UpdatesPage recent={true} bullet_points={["", "", "", ""]}/>
+                        <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets}/>
                     </>)
         } else {
             return (
