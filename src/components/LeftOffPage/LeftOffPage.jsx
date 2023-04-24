@@ -35,13 +35,14 @@ export const LeftOffPage = (props) => {
                         />
                     </div>
                     <h5 className="card-h5">Date Viewed: {date_viewed}</h5>
-                    <h4 className="card-h4">Summary of What You've Already Read:</h4>
+                    {/* <h4 className="card-h4">Summary of What You've Already Read:</h4>
                     <ul className="card-list">
                         <li className="card-list-item"><span className="card-list-item-span">{bullet_points[0]}</span></li>
                         <li className="card-list-item"><span className="card-list-item-span">{bullet_points[1]}</span></li>
                         <li className="card-list-item"><span className="card-list-item-span">{bullet_points[2]}</span></li>
                         <li className="card-list-item"><span className="card-list-item-span">{bullet_points[3]}</span></li>
-                    </ul>
+                    </ul> */}
+                    <h4 className="card-h4">To Be Implemented...</h4>
                 </div>
             </div>
         </div>
