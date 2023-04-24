@@ -8,7 +8,7 @@ import { LinearProgress } from "@mui/material";
 
 export default function HomePage() {
     // FIREBASE STUFF
-    var curr_user = 'Joe Shmoe' // change this based on user id from Google later
+    var curr_user = 'Jeff Bezos' // change this based on user id from Google later
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
     useEffect(() => {
@@ -59,17 +59,29 @@ export default function HomePage() {
     // an article on this topic and today
     const [articles, setArticles] = useState([]);
     const [date_viewed, setDateViewed] = useState(null);
+    const [last_url, setLastURL] = useState(null);
     var articlesTextContent = {} // dictionary of the form {article_url: full_text_content}
     useEffect(() => {
         if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
-            var start_date = new Date(user_data[chatGPTTopic].last_date);
-            setDateViewed(user_data[chatGPTTopic].last_date)
+            var start_date = null;
+            if (user_data[chatGPTTopic]) {
+                start_date = new Date(user_data[chatGPTTopic].last_date)
+                setDateViewed(user_data[chatGPTTopic].last_date)
+                setLastURL(user_data[chatGPTTopic].last_article_url)
+            } else {
+                start_date = new Date()
+                start_date.setDate(start_date.getDate() - 7)
+                setDateViewed('N/A')
+                setLastURL('First article viewed on this topic!')
+                // TODO: UPDATE FIREBASE DB HERE
+            }
+            console.log('start date', start_date)
             start_date = dateToString(start_date)
             var end_date = new Date();
             end_date = dateToString(end_date)
             // This isn't currently filtering by start date, end date, or relavance
-            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}1&end_date=${end_date}&sort=relevance`;
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=relevance`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticles(data.response.docs))
@@ -95,12 +107,22 @@ export default function HomePage() {
     useEffect(() => {
         if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
-            var start_date = new Date(user_data[chatGPTTopic].last_date);
+            var start_date = null;
+            if (user_data[chatGPTTopic]) {
+                start_date = new Date(user_data[chatGPTTopic].last_date)
+                setDateViewed(user_data[chatGPTTopic].last_date)
+                setLastURL(user_data[chatGPTTopic].last_article_url)
+            } else {
+                start_date = new Date()
+                start_date.setDate(start_date.getDate() - 7)
+                // TODO: UPDATE FIREBASE DB HERE
+            }
+            console.log('start date', start_date)
             start_date = dateToString(start_date)
             var end_date = new Date();
             end_date = dateToString(end_date)
             // This isn't currently filtering by start date, end date, or relavance
-            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}1&end_date=${end_date}&sort=newest`;
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=newest`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticlesRecent(data.response.docs))
@@ -171,7 +193,7 @@ export default function HomePage() {
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
-                        <LeftOffPage last_url={user_data[chatGPTTopic].last_article_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed}/>
+                        <LeftOffPage last_url={last_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed}/>
                         <UpdatesPage recent={true} bullet_points={recentUpdatesBullets}/>
                         <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets}/>
                     </>)
