@@ -8,6 +8,7 @@ import { LinearProgress } from "@mui/material";
 
 export default function HomePage() {
     // FIREBASE STUFF
+    // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
     var curr_user = 'Jeff Bezos' // change this based on user id from Google later
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
