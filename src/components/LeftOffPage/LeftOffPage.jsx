@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";;
+import React, { useState, useEffect, useCallback } from "react";
 import './LeftOffPage.css';
 import { TextField } from "@mui/material";
 

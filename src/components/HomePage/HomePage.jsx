@@ -3,6 +3,7 @@ import './HomePage.css';
 import { useDbData } from "../../utilities/firebase.js";
 import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
+import { DinoGame } from "../DinoGame/DinoGame";
 import { ChatGPTCall } from "../../utilities/api";
 import { LinearProgress } from "@mui/material";
 
@@ -179,6 +180,7 @@ export default function HomePage() {
     } else {
         return (<div className="loading-div">
                     <h1 className="loading-message">Loading...</h1>
+                    <DinoGame/>
                     <LinearProgress color="success"/>
                 </div>)
     }
