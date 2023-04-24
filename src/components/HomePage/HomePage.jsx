@@ -4,6 +4,7 @@ import { useDbData } from "../../utilities/firebase.js";
 import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
 import { ChatGPTCall } from "../../utilities/api";
+import { LinearProgress } from "@mui/material";
 
 export default function HomePage() {
     // FIREBASE STUFF
@@ -178,6 +179,7 @@ export default function HomePage() {
     } else {
         return (<div className="loading-div">
                     <h1 className="loading-message">Loading...</h1>
+                    <LinearProgress color="success"/>
                 </div>)
     }
 }
