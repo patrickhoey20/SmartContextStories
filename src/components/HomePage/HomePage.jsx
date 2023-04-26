@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import './HomePage.css';
-import { useDbData } from "../../utilities/firebase.js";
+import { useDbData, writeToDb } from "../../utilities/firebase.js";
 import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
 import { ChatGPTCall } from "../../utilities/api";
@@ -47,14 +47,23 @@ export default function HomePage() {
     }, [curr_url])
 
     // Helper for NYT API date formatting
-    function dateToString(date) {
+    function dateToNYTString(date) {
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
         const day = ('0' + date.getDate()).slice(-2);
         const ymd = `${year}${month}${day}`;
         return ymd;
     }
-    
+
+    // Helper to get today's date in mm-dd-yyyy
+    function getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, "0");
+        const day = today.getDate().toString().padStart(2, "0");
+        return `${month}-${day}-${year}`;
+    }
+      
     // STEP 4: Get info from NYT API relavant to the current topic
     // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
     // an article on this topic and today
@@ -67,20 +76,34 @@ export default function HomePage() {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = null;
             if (user_data[chatGPTTopic]) {
+                console.log('yesss')
                 start_date = new Date(user_data[chatGPTTopic].last_date)
-                setDateViewed(user_data[chatGPTTopic].last_date)
-                setLastURL(user_data[chatGPTTopic].last_article_url)
+                if (! date_viewed) {
+                    setDateViewed(user_data[chatGPTTopic].last_date)
+                }
+                if (! last_url) {
+                    setLastURL(user_data[chatGPTTopic].last_article_url)
+                }
             } else {
                 start_date = new Date()
                 start_date.setDate(start_date.getDate() - 7)
-                setDateViewed('N/A')
-                setLastURL('First article viewed on this topic!')
-                // TODO: UPDATE FIREBASE DB HERE
+                if (! date_viewed) {
+                    setDateViewed('N/A')
+                }
+                if (! last_url) {
+                    setLastURL('First article viewed on this topic!')
+                }
             }
+            // UPDATE FIREBASE DB HERE
+            var data = {
+                    'last_article_url': curr_url,
+                    'last_date': getTodayDate()
+            }
+            writeToDb(`/users/${curr_user}/${chatGPTTopic}`, data);
             console.log('start date', start_date)
-            start_date = dateToString(start_date)
+            start_date = dateToNYTString(start_date)
             var end_date = new Date();
-            end_date = dateToString(end_date)
+            end_date = dateToNYTString(end_date)
             // This isn't currently filtering by start date, end date, or relavance
             const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=relevance`;
             fetch(url)
@@ -119,9 +142,9 @@ export default function HomePage() {
     //             // TODO: UPDATE FIREBASE DB HERE
     //         }
     //         console.log('start date', start_date)
-    //         start_date = dateToString(start_date)
+    //         start_date = dateToNYTString(start_date)
     //         var end_date = new Date();
-    //         end_date = dateToString(end_date)
+    //         end_date = dateToNYTString(end_date)
     //         // This isn't currently filtering by start date, end date, or relavance
     //         const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=newest`;
     //         fetch(url)
