@@ -100,6 +100,7 @@ export default function HomePage() {
                     'last_date': getTodayDate()
             }
             writeToDb(`/users/${curr_user}/${chatGPTTopic}`, data);
+            // Make NYT API Call
             console.log('start date', start_date)
             start_date = dateToNYTString(start_date)
             var end_date = new Date();
