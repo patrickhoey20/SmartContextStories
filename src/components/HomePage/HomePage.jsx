@@ -8,14 +8,25 @@ import { LinearProgress } from "@mui/material";
 
 export default function HomePage() {
     // FIREBASE STUFF
+    const [current_user, setCurrentUser] = useState(null)
     // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
+    // useEffect(() => { // get current URL
+    //     chrome.identity.getProfileUserInfo(function(userInfo) {
+    //         console.log('user email', userInfo.email);
+    //         console.log('user id', userInfo.id);
+    //     });
+    // }, [])
     var curr_user = 'Jeff Bezos' // change this based on user id from Google later
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
+    const [runGetData, setRunGetData] = useState(false)
     useEffect(() => {
         if (data) {
-            setUserData(data.users[curr_user])
-            console.log("setting user_data to", data.users[curr_user])
+            if (! runGetData) {
+                setRunGetData(true)
+                setUserData(data.users[curr_user])
+                console.log("setting user_data to", data.users[curr_user])
+            }
         }
     }, [data])
 
@@ -35,10 +46,10 @@ export default function HomePage() {
         setChatGPTTopic(response.choices[0].text.replace(/\n/g, ''))
         console.log("setting chatGPTTopic to", response.choices[0].text.replace(/\n/g, ''))
     }
-    let runGPTTopic = false
+    const [runGPTTopic, setRunGPTTopic] = useState(false)
     useEffect(() => { // find topic using URL and Chat GPT
         if (!runGPTTopic && curr_url) {
-            runGPTTopic = true
+            setRunGPTTopic(true)
             TopicGPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
                          topics given in this list matches with the content of the website that the URL links to. Output
                          the name of the topic exactly as formatted in the list. If none of the topics match the content
@@ -177,10 +188,10 @@ export default function HomePage() {
         const response = await ChatGPTCall(prompt)
         setRelevantUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
     }
-    let runRelevant = false
+    const [runRelevant, setRunRelevant] = setState(false)
     useEffect(() => {
         if (!runRelevant && articles.length > 0) {
-            runRelevant = true
+            setRunRelevant(true)
             console.log(`I am giving this to GPT: ${Object.values(articlesTextContent).join(', ')}.`)
             RelevantUpdatesGPTResponse(`Briefly summarize the following articles into four bullet 
             points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.values(articlesTextContent).join(', ')}.`)
@@ -192,10 +203,10 @@ export default function HomePage() {
     //     const response = await ChatGPTCall(prompt)
     //     setRecentUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
     // }
-    // let runRecent = false
+    // const [runRecent, setRunRecent] = setState(false)
     // useEffect(() => {
     //     if (!runRecent && articles_recent.length > 0) {
-    //         runRecent = true
+    //         setRunRecent(true)
     //         RecentUpdatesGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContentRecent).join(', ')}.`)
     //     }
     // }, [articles_recent])
