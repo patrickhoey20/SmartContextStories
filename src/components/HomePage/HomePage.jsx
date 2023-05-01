@@ -181,7 +181,9 @@ export default function HomePage() {
     useEffect(() => {
         if (!runRelevant && articles.length > 0) {
             runRelevant = true
-            RelevantUpdatesGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContent).join(', ')}.`)
+            console.log(`I am giving this to GPT: ${Object.values(articlesTextContent).join(', ')}.`)
+            RelevantUpdatesGPTResponse(`Briefly summarize the following articles into four bullet 
+            points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.values(articlesTextContent).join(', ')}.`)
         }
     }, [articles])
     // Updates - by recency
