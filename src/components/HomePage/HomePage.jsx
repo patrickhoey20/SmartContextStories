@@ -188,7 +188,7 @@ export default function HomePage() {
         const response = await ChatGPTCall(prompt)
         setRelevantUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
     }
-    const [runRelevant, setRunRelevant] = setState(false)
+    const [runRelevant, setRunRelevant] = useState(false)
     useEffect(() => {
         if (!runRelevant && articles.length > 0) {
             setRunRelevant(true)
@@ -203,7 +203,7 @@ export default function HomePage() {
     //     const response = await ChatGPTCall(prompt)
     //     setRecentUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
     // }
-    // const [runRecent, setRunRecent] = setState(false)
+    // const [runRecent, setRunRecent] = useState(false)
     // useEffect(() => {
     //     if (!runRecent && articles_recent.length > 0) {
     //         setRunRecent(true)
