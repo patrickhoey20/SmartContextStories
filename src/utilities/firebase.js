@@ -36,3 +36,7 @@ export const useDbData = (path) => {
 
   return [ data, error ];
 };
+
+export const writeToDb = (path, data) => {
+  set(ref(database, path), data);
+}
