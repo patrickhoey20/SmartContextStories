@@ -193,9 +193,16 @@ export default function HomePage() {
     useEffect(() => {
         if (!runRelevant && articles.length > 0) {
             setRunRelevant(true)
-            console.log(`I am giving this to GPT: ${Object.values(articlesTextContent).join(', ')}.`)
-            RelevantUpdatesGPTResponse(`Briefly summarize the following articles into four bullet 
-            points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.values(articlesTextContent).join(', ')}.`)
+
+            console.log(`I am going to give you a list of lead paragraphs from News Stories. 
+            Please summarize the most important information into four bullet points. Use '- ' to represent each bullet point. The bullet points should be in order of importance and be easily readable by a person. Do not create any new information that is not in the articles.
+            Only include information if it is relevant to the topic. The topic is '${chatGPTTopic}'.
+            These are the paragraphs: ${Object.values(articlesTextContent).join(', ')}.`)
+
+            RelevantUpdatesGPTResponse(`I am going to give you a list of lead paragraphs from News Stories. 
+            Please summarize the most important information into four bullet points. Use '- ' to represent each bullet point. The bullet points should be in order of importance and be easily readable by a person. Do not create any new information that is not in the articles.
+            Only include information if it is relevant to the topic. The topic is '${chatGPTTopic}'.
+            These are the paragraphs: ${Object.values(articlesTextContent).join(', ')}.`)
         }
     }, [articles])
     // Updates - by recency

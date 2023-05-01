@@ -13,5 +13,6 @@ export async function ChatGPTCall(prompt) {
       }),
     })
     const data = await response.json();
+    console.log(`The response from the GPT call is ${data.choices[0].text}`);
     return data;
 }
