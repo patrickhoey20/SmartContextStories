@@ -31,8 +31,7 @@ export default function HomePage() {
     }, [data])
 
     // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
-    let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opioid Epidemic, Trump Indictment and Arrest, 
-                  2024 United States Presidential Election, The Stock Market`
+    let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opioid Epidemic, Trump Indictment and Arrest, 2024 United States Presidential Election, The Stock Market`
     const [curr_url, setCurrURL] = useState(null)
     useEffect(() => { // get current URL
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -50,10 +49,14 @@ export default function HomePage() {
     useEffect(() => { // find topic using URL and Chat GPT
         if (!runGPTTopic && curr_url) {
             setRunGPTTopic(true)
-            TopicGPTResponse(`You're given this list of topics: ${topics}, and this URL: ${curr_url}. Identify which of the
-                         topics given in this list matches with the content of the website that the URL links to. Output
-                         the name of the topic exactly as formatted in the list. If none of the topics match the content
-                         of the site, then output N/A.`)
+            let topicGPTCall = `You're given this list of topics and a URL. Identify which of the topics given in this list matches with the content of the website that the URL links to.
+            Output the name of the topic exactly as formatted in the list.
+            If none of the topics match the content of the site, then output N/A. 
+            Do not output anything that is not in the list.
+            The url is ${curr_url}.
+            The list of topics is ${topics}.`
+            console.log(`topic chatGPT call: \n${topicGPTCall}`)
+            TopicGPTResponse(topicGPTCall)
         }
     }, [curr_url])
 
@@ -193,15 +196,13 @@ export default function HomePage() {
         if (!runRelevant && articles.length > 0) {
             setRunRelevant(true)
 
-            console.log(`I am going to give you a list of lead paragraphs from News Stories. 
+            let relevantGPTCall = `I am going to give you a list of lead paragraphs from News Stories. 
             Please summarize the most important information into four bullet points. Use '- ' to represent each bullet point. The bullet points should be in order of importance and be easily readable by a person. Do not create any new information that is not in the articles.
             Only include information if it is relevant to the topic. The topic is '${chatGPTTopic}'.
-            These are the paragraphs: ${Object.values(articlesTextContent).join(', ')}.`)
-
-            RelevantUpdatesGPTResponse(`I am going to give you a list of lead paragraphs from News Stories. 
-            Please summarize the most important information into four bullet points. Use '- ' to represent each bullet point. The bullet points should be in order of importance and be easily readable by a person. Do not create any new information that is not in the articles.
-            Only include information if it is relevant to the topic. The topic is '${chatGPTTopic}'.
-            These are the paragraphs: ${Object.values(articlesTextContent).join(', ')}.`)
+            These are the paragraphs: ${Object.values(articlesTextContent).join(', ')}.`
+            
+            console.log(relevantGPTCall)
+            RelevantUpdatesGPTResponse(relevantGPTCall)
         }
     }, [articles])
     // Updates - by recency
