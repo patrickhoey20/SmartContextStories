@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";;
+import React from "react";
 import './LeftOffPage.css';
 import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
-    const { last_url, bullet_points, date_viewed } = props;
+    const { last_url, date_viewed } = props;
     return (
         <div className="centering">
             <div className="leftoff-card">
@@ -35,14 +35,6 @@ export const LeftOffPage = (props) => {
                         />
                     </div>
                     <h5 className="card-h5">Date Viewed: {date_viewed}</h5>
-                    {/* <h4 className="card-h4">Summary of What You've Already Read:</h4>
-                    <ul className="card-list">
-                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[0]}</span></li>
-                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[1]}</span></li>
-                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[2]}</span></li>
-                        <li className="card-list-item"><span className="card-list-item-span">{bullet_points[3]}</span></li>
-                    </ul> */}
-                    <h4 className="card-h4">To Be Implemented...</h4>
                 </div>
             </div>
         </div>

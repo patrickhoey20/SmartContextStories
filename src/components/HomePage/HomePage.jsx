@@ -85,7 +85,7 @@ export default function HomePage() {
     const [articles, setArticles] = useState([]);
     const [date_viewed, setDateViewed] = useState(null);
     const [last_url, setLastURL] = useState(null);
-    var articlesTextContent = {} // dictionary of the form {article_url: full_text_content}
+    var articlesTextContent = {} // dictionary of the form {article_url: lead_paragraph}
     useEffect(() => {
         if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
@@ -133,60 +133,19 @@ export default function HomePage() {
             console.log('articles', articles)
             for (let i = 0; i < articles.length; i++) {
                 // note: for now setting the value to the article's lead paragraph
-                // need to change to full text content later... potentially
-                articlesTextContent[articles[i].web_url] = articles[i].lead_paragraph
-                console.log("article", i, "publication date", articles[i].pub_date)
-                console.log("article", i, "lead paragraph", articles[i].lead_paragraph)
+                articlesTextContent[articles[i].web_url] = articles[i].lead_paragraph;
+                console.log("article", i, "publication date", articles[i].pub_date);
+                console.log("article", i, "lead paragraph", articles[i].lead_paragraph);
+                console.log("article", i, "title", articles[i].headline.main);
             }
         }
     }, [articles])
-    // Grabs the 10 most recent NYT articles on a given topic between the user's last date of viewing
-    // an article on this topic and today
-    // const [articles_recent, setArticlesRecent] = useState([]);
-    // var articlesTextContentRecent = {} // dictionary of the form {article_url: full_text_content}
-    // useEffect(() => {
-    //     if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
-    //         const apiKey = import.meta.env.VITE_NYT_API_KEY;
-    //         var start_date = null;
-    //         if (user_data[chatGPTTopic]) {
-    //             start_date = new Date(user_data[chatGPTTopic].last_date)
-    //             setDateViewed(user_data[chatGPTTopic].last_date)
-    //             setLastURL(user_data[chatGPTTopic].last_article_url)
-    //         } else {
-    //             start_date = new Date()
-    //             start_date.setDate(start_date.getDate() - 7)
-    //             // TODO: UPDATE FIREBASE DB HERE
-    //         }
-    //         console.log('start date', start_date)
-    //         start_date = dateToNYTString(start_date)
-    //         var end_date = new Date();
-    //         end_date = dateToNYTString(end_date)
-    //         // This isn't currently filtering by start date, end date, or relavance
-    //         const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=newest`;
-    //         fetch(url)
-    //             .then(response => response.json())
-    //             .then(data => setArticlesRecent(data.response.docs))
-    //             .catch(error => console.log("error", error));
-    //     }
-    // }, [chatGPTTopic, user_data]);
-    // useEffect(() => {
-    //     if (articles_recent.length > 0) {
-    //         console.log('articles_recent', articles_recent)
-    //         for (let i = 0; i < articles_recent.length; i++) {
-    //             // note: for now setting the value to the article's lead paragraph
-    //             // need to change to full text content later... potentially
-    //             articlesTextContentRecent[articles_recent[i].web_url] = articles_recent[i].lead_paragraph
-    //             console.log("article", i, "publication date", articles_recent[i].pub_date)
-    //             console.log("article", i, "lead paragraph", articles_recent[i].lead_paragraph)
-    //         }
-    //     }
-    // }, [articles_recent])
 
-    // STEP 4.5: Get full text content of each article
-    // todo: do. for now we will just use article snippets
+    // helper to split article url and title for sources
+    var sourcesUrls = articles.map(article => article.web_url);
+    var sourcesTitles = articles.map(article => article.headline.main);
 
     // STEP 5: Use Chat-GPT to compress NYT information into four bullet points
-    // Updates - by relevance
     const [relevantUpdatesResponse, setRelevantUpdatesResponse] = useState(null)
     async function RelevantUpdatesGPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
@@ -206,25 +165,10 @@ export default function HomePage() {
             RelevantUpdatesGPTResponse(relevantGPTCall)
         }
     }, [articles])
-    // Updates - by recency
-    // const [recentUpdatesResponse, setRecentUpdatesResponse] = useState(null)
-    // async function RecentUpdatesGPTResponse(prompt) {
-    //     const response = await ChatGPTCall(prompt)
-    //     setRecentUpdatesResponse(response.choices[0].text.replace(/\n/g, ''))
-    // }
-    // const [runRecent, setRunRecent] = useState(false)
-    // useEffect(() => {
-    //     if (!runRecent && articles_recent.length > 0) {
-    //         setRunRecent(true)
-    //         RecentUpdatesGPTResponse(`Briefly summarize the following articles into four bullet points (using "- " as the bullet points) as if you were reporting them to a person: ${Object.keys(articlesTextContentRecent).join(', ')}.`)
-    //     }
-    // }, [articles_recent])
 
     // split the response into bullet points
     var relevantUpdatesBullets = relevantUpdatesResponse ? relevantUpdatesResponse.split('- ') : null
     if (relevantUpdatesBullets) relevantUpdatesBullets.shift()
-    // var recentUpdatesBullets = recentUpdatesResponse ? recentUpdatesResponse.split('- ') : null
-    // if (recentUpdatesBullets) recentUpdatesBullets.shift()
 
     // REACT CODE - FRONTEND STUFF
     if (chatGPTTopic && chatGPTTopic.includes('N/A')) {
@@ -234,15 +178,14 @@ export default function HomePage() {
             </div>
         )
     }
-    if (chatGPTTopic && user_data && relevantUpdatesBullets) { // && recentUpdatesBullets
+    if (chatGPTTopic && user_data && relevantUpdatesBullets) {
         if (! chatGPTTopic.includes('N/A')) {
             return (<>
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
                         <LeftOffPage last_url={last_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed}/>
-                        {/* <UpdatesPage recent={true} bullet_points={recentUpdatesBullets}/> */}
-                        <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets}/>
+                        <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/>
                     </>)
         }
     } else {
