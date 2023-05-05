@@ -1,0 +1,26 @@
+// vite.config.js
+import { defineConfig } from "file:///C:/Users/mxrce/Documents/GitHub/SmartContextStories/node_modules/vite/dist/node/index.js";
+import react from "file:///C:/Users/mxrce/Documents/GitHub/SmartContextStories/node_modules/@vitejs/plugin-react/dist/index.mjs";
+import { crx } from "file:///C:/Users/mxrce/Documents/GitHub/SmartContextStories/node_modules/@crxjs/vite-plugin/dist/index.mjs";
+
+// manifest.json
+var manifest_default = {
+  manifest_version: 3,
+  name: "Smart Context",
+  version: "1.0.0",
+  action: { default_popup: "index.html" },
+  permissions: [
+    "tabs",
+    "identity",
+    "identity.email"
+  ]
+};
+
+// vite.config.js
+var vite_config_default = defineConfig({
+  plugins: [react(), crx({ manifest: manifest_default })]
+});
+export {
+  vite_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcuanMiLCAibWFuaWZlc3QuanNvbiJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiY29uc3QgX192aXRlX2luamVjdGVkX29yaWdpbmFsX2Rpcm5hbWUgPSBcIkM6XFxcXFVzZXJzXFxcXG14cmNlXFxcXERvY3VtZW50c1xcXFxHaXRIdWJcXFxcU21hcnRDb250ZXh0U3Rvcmllc1wiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9maWxlbmFtZSA9IFwiQzpcXFxcVXNlcnNcXFxcbXhyY2VcXFxcRG9jdW1lbnRzXFxcXEdpdEh1YlxcXFxTbWFydENvbnRleHRTdG9yaWVzXFxcXHZpdGUuY29uZmlnLmpzXCI7Y29uc3QgX192aXRlX2luamVjdGVkX29yaWdpbmFsX2ltcG9ydF9tZXRhX3VybCA9IFwiZmlsZTovLy9DOi9Vc2Vycy9teHJjZS9Eb2N1bWVudHMvR2l0SHViL1NtYXJ0Q29udGV4dFN0b3JpZXMvdml0ZS5jb25maWcuanNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tICd2aXRlJ1xyXG5pbXBvcnQgcmVhY3QgZnJvbSAnQHZpdGVqcy9wbHVnaW4tcmVhY3QnXHJcbmltcG9ydCB7IGNyeCB9IGZyb20gJ0Bjcnhqcy92aXRlLXBsdWdpbidcclxuaW1wb3J0IG1hbmlmZXN0IGZyb20gJy4vbWFuaWZlc3QuanNvbidcclxuXHJcbi8vIGh0dHBzOi8vdml0ZWpzLmRldi9jb25maWcvXHJcbmV4cG9ydCBkZWZhdWx0IGRlZmluZUNvbmZpZyh7XHJcbiAgcGx1Z2luczogW3JlYWN0KCksIGNyeCh7IG1hbmlmZXN0IH0pXSxcclxufSk7IiwgIntcclxuICAgIFwibWFuaWZlc3RfdmVyc2lvblwiOiAzLFxyXG4gICAgXCJuYW1lXCI6IFwiU21hcnQgQ29udGV4dFwiLFxyXG4gICAgXCJ2ZXJzaW9uXCI6IFwiMS4wLjBcIixcclxuICAgIFwiYWN0aW9uXCI6IHsgXCJkZWZhdWx0X3BvcHVwXCI6IFwiaW5kZXguaHRtbFwiIH0sXHJcbiAgICBcInBlcm1pc3Npb25zXCI6IFtcclxuICAgICAgXCJ0YWJzXCIsIFwiaWRlbnRpdHlcIiwgXCJpZGVudGl0eS5lbWFpbFwiXHJcbiAgICBdXHJcbiAgfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBdVYsU0FBUyxvQkFBb0I7QUFDcFgsT0FBTyxXQUFXO0FBQ2xCLFNBQVMsV0FBVzs7O0FDRnBCO0FBQUEsRUFDSSxrQkFBb0I7QUFBQSxFQUNwQixNQUFRO0FBQUEsRUFDUixTQUFXO0FBQUEsRUFDWCxRQUFVLEVBQUUsZUFBaUIsYUFBYTtBQUFBLEVBQzFDLGFBQWU7QUFBQSxJQUNiO0FBQUEsSUFBUTtBQUFBLElBQVk7QUFBQSxFQUN0QjtBQUNGOzs7QURGRixJQUFPLHNCQUFRLGFBQWE7QUFBQSxFQUMxQixTQUFTLENBQUMsTUFBTSxHQUFHLElBQUksRUFBRSwyQkFBUyxDQUFDLENBQUM7QUFDdEMsQ0FBQzsiLAogICJuYW1lcyI6IFtdCn0K
