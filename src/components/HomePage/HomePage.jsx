@@ -5,9 +5,18 @@ import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
 import { ChatGPTCall } from "../../utilities/api";
 import { LinearProgress } from "@mui/material";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
     // FIREBASE STUFF
+    const [user, loading, err] = useAuthState(auth);
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (loading) return;
+        if (!user) navigate("/");
+    }, [user, loading]);
+
     const [current_user, setCurrentUser] = useState(null)
     // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
     // useEffect(() => {
