@@ -31,7 +31,13 @@ export default function HomePage() {
     }, [data])
 
     // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
-    let topics = `Russian Invasion of Ukraine, COVID-19 Pandemic, Opioid Epidemic, Trump Indictment and Arrest, 2024 United States Presidential Election, The Stock Market`
+    // "topics" below is a list of NYT Article Keywords (subjects, specifically)
+    let topics = ['New York State Criminal Case Against Trump (71543-23)',
+                  'Coronavirus (2019-nCoV)', 
+                  'Russian Invasion of Ukraine (2022)', 
+                  'Opioids and Opiates',
+                  'Presidential Election of 2024',
+                  'Stocks and Bonds']
     const [curr_url, setCurrURL] = useState(null)
     useEffect(() => { // get current URL
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -40,39 +46,42 @@ export default function HomePage() {
           });
     }, []);
     const [article_NYT, setArticleNYT] = useState([]);
+    const [article_NYT_run, setArticleNYTRun] = useState(false);
     useEffect(() =>  {
-        if (curr_url) {
+        if (curr_url && curr_url.includes('nytimes')) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             let index = curr_url.indexOf("html");
-            let new_url = curr_url.substring(0, index + 4);
+            let new_url = curr_url;
+            if (index !== -1) {
+                new_url = curr_url.substring(0, index + 4);
+            }
             const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?&fq=web_url:("${new_url}")&api-key=${apiKey}`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticleNYT(data.response.docs))
                 .catch(error => console.log("error", error));
+            setArticleNYTRun(true)
         }
     }, [curr_url])
+    // new attempt at identifying topic 
     const [chatGPTTopic, setChatGPTTopic] = useState(null)
-    async function TopicGPTResponse(prompt) {
-        const response = await ChatGPTCall(prompt)
-        setChatGPTTopic(response.choices[0].text.replace(/\n/g, ''))
-        console.log("setting chatGPTTopic to", response.choices[0].text.replace(/\n/g, ''))
-    }
     const [runGPTTopic, setRunGPTTopic] = useState(false)
-    useEffect(() => { // find topic using URL and Chat GPT
-        if (!runGPTTopic && curr_url) {
+    useEffect(() => {
+        if (!runGPTTopic && article_NYT_run) {
             setRunGPTTopic(true)
-            //  The article url is "${curr_url}".
-            let topicGPTCall = `You're given this list of topics and a set of information from a New York times article:
-            the headline and the lead paragraph. Identify which of the topics, if any, match the New
-            York times article. Output the name of the topic exactly as formatted in the list. 
-            
-            The headline of the article is "${article_NYT[0].headline.main}".
-            The lead paragraph of the article is "${article_NYT[0].lead_paragraph}".
-            The list of topics is "${topics}, N/A". Each topic is separated by a comma. 
-            If none of the topics match the content of the article, then output N/A. Do not output anything that is not in the list of topics.`
-            console.log(`topic chatGPT call: \n${topicGPTCall}`)
-            TopicGPTResponse(topicGPTCall)
+            let keywords = article_NYT[0].keywords
+            for (let i = 0; i < keywords.length; i++) {
+                let keyword = keywords[i]
+                if (keyword.name === 'subject') {
+                    if (topics.includes(keyword.value)) {
+                        setChatGPTTopic(keyword.value)
+                        break
+                    }
+                }
+                if (i == (keywords.length - 1)) {
+                    setChatGPTTopic('N/A')
+                }
+            }
         }
     }, [article_NYT])
 
@@ -94,7 +103,7 @@ export default function HomePage() {
         return `${month}-${day}-${year}`;
     }
       
-    // STEP 4: Get info from NYT API relavant to the current topic
+    // STEP 2: Get info from NYT API relavant to the current topic
     // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
     // an article on this topic and today
     const [articles, setArticles] = useState([]);
@@ -128,7 +137,7 @@ export default function HomePage() {
                     'last_article_url': curr_url,
                     'last_date': getTodayDate()
             }
-            writeToDb(`/users/${curr_user}/${chatGPTTopic.toLowerCase().replace(/[\s\n]/g, "")}`, data);
+            writeToDb(`/users/${curr_user}/${chatGPTTopic}`, data);
             // Make NYT API Call
             console.log('start date', start_date)
             start_date = dateToNYTString(start_date)
@@ -158,7 +167,7 @@ export default function HomePage() {
     var sourcesUrls = articles.map(article => article.web_url);
     var sourcesTitles = articles.map(article => article.headline.main);
 
-    // STEP 5: Use Chat-GPT to compress NYT information into four bullet points
+    // STEP 3: Use Chat-GPT to compress NYT information into four bullet points
     const [relevantUpdatesResponse, setRelevantUpdatesResponse] = useState(null)
     async function RelevantUpdatesGPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
