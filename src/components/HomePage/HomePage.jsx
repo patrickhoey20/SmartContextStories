@@ -61,14 +61,15 @@ export default function HomePage() {
     useEffect(() => { // find topic using URL and Chat GPT
         if (!runGPTTopic && curr_url) {
             setRunGPTTopic(true)
+            //  The article url is "${curr_url}".
             let topicGPTCall = `You're given this list of topics and a set of information from a New York times article:
-            the article URL, the headline, and the lead paragraph. Identify which of the topics, if any, match the New
-            York times article. Output the name of the topic exactly as formatted in the list. If none of the topics
-            match the content of the site, then output N/A. Do not output anything that is not in the list.
-            The article url is "${curr_url}".
+            the headline and the lead paragraph. Identify which of the topics, if any, match the New
+            York times article. Output the name of the topic exactly as formatted in the list. 
+            
             The headline of the article is "${article_NYT[0].headline.main}".
             The lead paragraph of the article is "${article_NYT[0].lead_paragraph}".
-            The list of topics is "${topics}".`
+            The list of topics is "${topics}, N/A". Each topic is separated by a comma. 
+            If none of the topics match the content of the article, then output N/A. Do not output anything that is not in the list of topics.`
             console.log(`topic chatGPT call: \n${topicGPTCall}`)
             TopicGPTResponse(topicGPTCall)
         }
