@@ -83,24 +83,6 @@ export default function HomePage() {
             }
         }
     }, [article_NYT])
-
-    // Helper for NYT API date formatting
-    function dateToNYTString(date) {
-        const year = date.getFullYear();
-        const month = ('0' + (date.getMonth() + 1)).slice(-2);
-        const day = ('0' + date.getDate()).slice(-2);
-        const ymd = `${year}${month}${day}`;
-        return ymd;
-    }
-
-    // Helper to get today's date in mm-dd-yyyy
-    function getTodayDate() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = (today.getMonth() + 1).toString().padStart(2, "0");
-        const day = today.getDate().toString().padStart(2, "0");
-        return `${month}-${day}-${year}`;
-    }
       
     // STEP 2: Get info from NYT API relavant to the current topic
     // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
@@ -163,7 +145,25 @@ export default function HomePage() {
         }
     }, [articles])
 
-    // helper to split article url and title for sources
+    // Helper for NYT API date formatting
+    function dateToNYTString(date) {
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        const ymd = `${year}${month}${day}`;
+        return ymd;
+    }
+
+    // Helper to get today's date in mm-dd-yyyy
+    function getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, "0");
+        const day = today.getDate().toString().padStart(2, "0");
+        return `${month}-${day}-${year}`;
+    }
+
+    // Helper to split article url and title for sources
     var sourcesUrls = articles.map(article => article.web_url);
     var sourcesTitles = articles.map(article => article.headline.main);
 
@@ -187,7 +187,6 @@ export default function HomePage() {
             RelevantUpdatesGPTResponse(relevantGPTCall)
         }
     }, [articles])
-
     // split the response into bullet points
     var relevantUpdatesBullets = relevantUpdatesResponse ? relevantUpdatesResponse.split('- ') : null
     if (relevantUpdatesBullets) relevantUpdatesBullets.shift()
