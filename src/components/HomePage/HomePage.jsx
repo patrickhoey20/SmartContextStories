@@ -44,7 +44,9 @@ export default function HomePage() {
     useEffect(() =>  {
         if (curr_url) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
-            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${curr_url}&api-key=${apiKey}`;
+            let index = curr_url.indexOf("html");
+            let new_url = curr_url.substring(0, index + 4);
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${new_url}&api-key=${apiKey}`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticleNYT(data.response.docs))
