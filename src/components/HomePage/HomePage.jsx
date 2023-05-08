@@ -5,18 +5,17 @@ import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
 import { ChatGPTCall } from "../../utilities/api";
 import { LinearProgress } from "@mui/material";
-import { set } from "firebase/database";
 
 export default function HomePage() {
     // FIREBASE STUFF
     const [current_user, setCurrentUser] = useState(null)
     // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
-    useEffect(() => {
-        chrome.identity.getProfileUserInfo((userInfo) => {
-            console.log(userInfo)
-            setCurrentUser(userInfo)
-        });
-    }, [])
+    // useEffect(() => {
+    //     chrome.identity.getProfileUserInfo((userInfo) => {
+    //         console.log(userInfo)
+    //         setCurrentUser(userInfo)
+    //     });
+    // }, [])
     var curr_user = 'Jeff Bezos' // change this based on user id from Google later
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
@@ -44,7 +43,9 @@ export default function HomePage() {
     useEffect(() =>  {
         if (curr_url) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
-            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?&fq=web_url:("${curr_url}")&api-key=${apiKey}`;
+            let index = curr_url.indexOf("html");
+            let new_url = curr_url.substring(0, index + 4);
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?&fq=web_url:("${new_url}")&api-key=${apiKey}`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticleNYT(data.response.docs))
@@ -127,7 +128,7 @@ export default function HomePage() {
                     'last_article_url': curr_url,
                     'last_date': getTodayDate()
             }
-            writeToDb(`/users/${curr_user}/${chatGPTTopic}`, data);
+            writeToDb(`/users/${curr_user}/${chatGPTTopic.toLowerCase().replace(/[\s\n]/g, "")}`, data);
             // Make NYT API Call
             console.log('start date', start_date)
             start_date = dateToNYTString(start_date)
