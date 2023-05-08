@@ -48,7 +48,7 @@ export default function HomePage() {
     const [article_NYT, setArticleNYT] = useState([]);
     const [article_NYT_run, setArticleNYTRun] = useState(false);
     useEffect(() =>  {
-        if (curr_url && curr_url.includes('nytimes')) {
+        if (curr_url && curr_url.includes('nytimes') && curr_url.includes('html')) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             let index = curr_url.indexOf("html");
             let new_url = curr_url;
@@ -63,8 +63,7 @@ export default function HomePage() {
             setArticleNYTRun(true)
         }
     }, [curr_url])
-    // new attempt at identifying topic 
-    const [chatGPTTopic, setChatGPTTopic] = useState(null)
+    const [articleTopic, setArticleTopic] = useState(null)
     const [runGPTTopic, setRunGPTTopic] = useState(false)
     useEffect(() => {
         if (!runGPTTopic && article_NYT_run) {
@@ -74,12 +73,12 @@ export default function HomePage() {
                 let keyword = keywords[i]
                 if (keyword.name === 'subject') {
                     if (topics.includes(keyword.value)) {
-                        setChatGPTTopic(keyword.value)
+                        setArticleTopic(keyword.value)
                         break
                     }
                 }
                 if (i == (keywords.length - 1)) {
-                    setChatGPTTopic('N/A')
+                    setArticleTopic('N/A')
                 }
             }
         }
@@ -111,16 +110,16 @@ export default function HomePage() {
     const [last_url, setLastURL] = useState(null);
     var articlesTextContent = {} // dictionary of the form {article_url: lead_paragraph}
     useEffect(() => {
-        if (chatGPTTopic && user_data && (! chatGPTTopic.includes('N/A'))) {
+        if (articleTopic && user_data && (! articleTopic.includes('N/A'))) {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = null;
-            if (user_data[chatGPTTopic]) {
-                start_date = new Date(user_data[chatGPTTopic].last_date)
+            if (user_data[articleTopic]) {
+                start_date = new Date(user_data[articleTopic].last_date)
                 if (! date_viewed) {
-                    setDateViewed(user_data[chatGPTTopic].last_date)
+                    setDateViewed(user_data[articleTopic].last_date)
                 }
                 if (! last_url) {
-                    setLastURL(user_data[chatGPTTopic].last_article_url)
+                    setLastURL(user_data[articleTopic].last_article_url)
                 }
             } else {
                 start_date = new Date()
@@ -137,22 +136,23 @@ export default function HomePage() {
                     'last_article_url': curr_url,
                     'last_date': getTodayDate()
             }
-            writeToDb(`/users/${curr_user}/${chatGPTTopic}`, data);
+            writeToDb(`/users/${curr_user}/${articleTopic}`, data);
             // Make NYT API Call
             console.log('start date', start_date)
             start_date = dateToNYTString(start_date)
             var end_date = new Date();
             end_date = dateToNYTString(end_date)
-            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=relevance`;
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=subject:("${articleTopic}")&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=relevance`;
+            // const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${articleTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=relevance`; // using q instead of fq
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticles(data.response.docs))
                 .catch(error => console.log("error", error));
         }
-    }, [chatGPTTopic, user_data]);
+    }, [articleTopic, user_data]);
     useEffect(() => {
         if (articles.length > 0) {
-            console.log('articles', articles)
+            console.log('articles length', articles.length)
             for (let i = 0; i < articles.length; i++) {
                 // note: for now setting the value to the article's lead paragraph
                 articlesTextContent[articles[i].web_url] = articles[i].lead_paragraph;
@@ -180,7 +180,7 @@ export default function HomePage() {
 
             let relevantGPTCall = `I am going to give you a list of lead paragraphs from News Stories. 
             Please summarize the most important information into four bullet points. Use '- ' to represent each bullet point. The bullet points should be in order of importance and be easily readable by a person. Do not create any new information that is not in the articles.
-            Only include information if it is relevant to the topic. The topic is '${chatGPTTopic}'.
+            Only include information if it is relevant to the topic. The topic is '${articleTopic}'.
             These are the paragraphs: ${Object.values(articlesTextContent).join(', ')}.`
             
             console.log(relevantGPTCall)
@@ -200,15 +200,22 @@ export default function HomePage() {
             </div>
         )
     }
-    if (chatGPTTopic && chatGPTTopic.includes('N/A')) {
+    if (curr_url && (curr_url.includes('nytimes')) && (! curr_url.includes('html'))) {
+        return (
+            <div className="loading-div">
+                <h1 className="loading-message">This is a New York Times page, but not an article!</h1>
+            </div>
+        )
+    }
+    if (articleTopic && articleTopic.includes('N/A')) {
         return (
             <div className="loading-div">
                 <h1 className="loading-message">Current tab doesn't match a topic from our list!</h1>
             </div>
         )
     }
-    if (chatGPTTopic && user_data && relevantUpdatesBullets) {
-        if (! chatGPTTopic.includes('N/A')) {
+    if (articleTopic && user_data && relevantUpdatesBullets) {
+        if (! articleTopic.includes('N/A')) {
             return (<>
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
