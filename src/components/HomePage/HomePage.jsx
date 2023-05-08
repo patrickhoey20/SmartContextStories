@@ -39,7 +39,19 @@ export default function HomePage() {
             var activeTab = tabs[0];
             setCurrURL(activeTab.url)
           });
-    }, [])
+    }, []);
+    const [article_NYT, setArticleNYT] = useState([]);
+    useEffect(() =>  {
+        if (curr_url) {
+            const apiKey = import.meta.env.VITE_NYT_API_KEY;
+            const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${curr_url}&api-key=${apiKey}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => setArticleNYT(data.response.docs))
+                .catch(error => console.log("error", error));
+        }
+    }, [curr_url])
+    console.log('curr_article here!', article_NYT)
     const [chatGPTTopic, setChatGPTTopic] = useState(null)
     async function TopicGPTResponse(prompt) {
         const response = await ChatGPTCall(prompt)
@@ -91,7 +103,6 @@ export default function HomePage() {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = null;
             if (user_data[chatGPTTopic]) {
-                console.log('yesss')
                 start_date = new Date(user_data[chatGPTTopic].last_date)
                 if (! date_viewed) {
                     setDateViewed(user_data[chatGPTTopic].last_date)
@@ -120,7 +131,6 @@ export default function HomePage() {
             start_date = dateToNYTString(start_date)
             var end_date = new Date();
             end_date = dateToNYTString(end_date)
-            // This isn't currently filtering by start date, end date, or relavance
             const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${chatGPTTopic}&api-key=${apiKey}&begin_date=${start_date}&end_date=${end_date}&sort=relevance`;
             fetch(url)
                 .then(response => response.json())
@@ -171,6 +181,13 @@ export default function HomePage() {
     if (relevantUpdatesBullets) relevantUpdatesBullets.shift()
 
     // REACT CODE - FRONTEND STUFF
+    if (curr_url && (! curr_url.includes('nytimes'))) {
+        return (
+            <div className="loading-div">
+                <h1 className="loading-message">This tool only works with New York Times articles :(</h1>
+            </div>
+        )
+    }
     if (chatGPTTopic && chatGPTTopic.includes('N/A')) {
         return (
             <div className="loading-div">
