@@ -11,10 +11,10 @@
     color: #242424;
     width: 80%;
     margin-top: 2.5%;
-    margin-bottom: 5%;
+    margin-bottom: 2.5%;
     font-family: 'Iowan Old Style Bold';
     padding: 5%;
-    min-height: 30vh;
+    min-height: 15vh;
 }
 
 .leftoff-card-contents {
@@ -24,21 +24,13 @@
 }
 
 .card-h2 {
-    padding-bottom: 2%;
+    padding-top: 2.5%;
     font-size: 1.5rem;
 }
 
-.card-h4 {
-    padding-bottom: 2%;
-    margin-bottom: 0;
-    font-size: 1rem;
-}
-
 .card-h5 {
-    margin-top: 2%;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #4e4e4e;
-    margin-bottom: 5%;
 }
 
 .card-list {
@@ -55,4 +47,8 @@
 
 .card-list-item-span {
     font-size: 1rem;
+}
+
+.topic {
+    color: rgb(51, 51, 184);
 }

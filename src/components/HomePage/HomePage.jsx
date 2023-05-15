@@ -10,12 +10,12 @@ export default function HomePage() {
     // FIREBASE STUFF
     const [current_user, setCurrentUser] = useState(null)
     // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
-    // useEffect(() => {
-    //     chrome.identity.getProfileUserInfo((userInfo) => {
-    //         console.log(userInfo)
-    //         setCurrentUser(userInfo)
-    //     });
-    // }, [])
+    useEffect(() => {
+        chrome.identity.getProfileUserInfo((userInfo) => {
+            console.log(userInfo)
+            setCurrentUser(userInfo)
+        });
+    }, [])
     var curr_user = 'Jeff Bezos' // change this based on user id from Google later
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
@@ -167,6 +167,15 @@ export default function HomePage() {
     var sourcesUrls = articles.map(article => article.web_url);
     var sourcesTitles = articles.map(article => article.headline.main);
 
+    // Helper to get number of days since last day
+    function getDaysPassed(inputtedDay) {
+        var currentDate = new Date();
+        var inputtedDate = new Date(inputtedDay);
+        var timeDiff = currentDate.getTime() - inputtedDate.getTime();
+        var daysPassed = Math.floor(timeDiff / (1000 * 3600 * 24));
+        return daysPassed;
+    } 
+
     // STEP 3: Use Chat-GPT to compress NYT information into four bullet points
     const [relevantUpdatesResponse, setRelevantUpdatesResponse] = useState(null)
     async function RelevantUpdatesGPTResponse(prompt) {
@@ -219,7 +228,7 @@ export default function HomePage() {
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
-                        <LeftOffPage last_url={last_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed}/>
+                        <LeftOffPage last_url={last_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed} topic={articleTopic}/>
                         <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/>
                     </>)
         }

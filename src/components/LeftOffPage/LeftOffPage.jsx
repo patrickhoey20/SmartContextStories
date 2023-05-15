@@ -3,38 +3,20 @@ import './LeftOffPage.css';
 import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
-    const { last_url, date_viewed } = props;
+    const { last_url, date_viewed, topic } = props;
+    function getDaysPassed(inputtedDay) {
+        var currentDate = new Date();
+        var inputtedDate = new Date(inputtedDay);
+        var timeDiff = currentDate.getTime() - inputtedDate.getTime();
+        var daysPassed = Math.floor(timeDiff / (1000 * 3600 * 24));
+        return daysPassed;
+    }
     return (
         <div className="centering">
             <div className="leftoff-card">
                 <div className="leftoff-card-contents">
-                    <h2 className="card-h2">Where You Left Off</h2>
-                    <h4 className="card-h4">Last Article You Viewed:</h4>
-                    <div className="centering">
-                        <TextField 
-                            variant="standard"
-                            disabled 
-                            sx={{
-                                background: '#d9d9d9', 
-                                borderRadius: '10px',
-                                width: '100%',
-                                fontFamily: 'Iowan Old Style Bold',
-                                fontSize: '1.5rem',
-                                height: '3rem'
-                            }}
-                            InputProps={{
-                                disableUnderline: true,
-                            }}
-                            inputProps={{
-                                style: { 
-                                    fontFamily: 'Iowan Old Style Bold', 
-                                    fontSize: '1.5rem' 
-                                }
-                            }}
-                            value={last_url ? last_url : "No URL Found"}
-                        />
-                    </div>
-                    <h5 className="card-h5">Date Viewed: {date_viewed}</h5>
+                    <div className="card-h2">Here's what you missed about <span className="topic">{topic}</span></div>
+                    <div className="card-h5">Since <a href={last_url} target="_blank">{date_viewed}</a> ({getDaysPassed(date_viewed)} days ago)</div>
                 </div>
             </div>
         </div>
