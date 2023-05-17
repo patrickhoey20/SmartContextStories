@@ -16,15 +16,17 @@ export default function HomePage() {
             setCurrentUser(userInfo)
         });
     }, [])
-    var curr_user = 'Jeff Bezos' // change this based on user id from Google later
+    var curr_user = 'Joe Shmoe' // change this based on user id from Google later
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
+    const [cache_data, setCacheData] = useState(null)
     const [runGetData, setRunGetData] = useState(false)
     useEffect(() => {
         if (data) {
             if (! runGetData) {
                 setRunGetData(true)
                 setUserData(data.users[curr_user])
+                setCacheData(data.cache[curr_user])
                 console.log("setting user_data to", data.users[curr_user])
             }
         }
@@ -83,7 +85,38 @@ export default function HomePage() {
             }
         }
     }, [article_NYT])
-      
+
+    // STEP 1.5: Cache if necessary
+    
+    // Caching steps: check if user has anything in the DB for this topic
+    // If so, check if the last date viewed is today
+    // If last date viewed is today then generate content from that cached data
+    // Otherwise, continue with the rest of the steps and then cache the data
+    const [run_code, setRunCode] = useState(true)
+    const [hasRunCache, setHasRunCache] = useState(false)
+    useEffect(() => {
+        let today = getTodayDate()
+        if (cache_data && articleTopic) {
+            setHasRunCache(true)
+            console.log(cache_data)
+            console.log(articleTopic)
+            let personal_cache = cache_data[articleTopic]
+            // console.log('cache', personal_cache)
+            if (personal_cache) {
+                if (personal_cache.last_date === today) {
+                    console.log('if')
+                    setRunCode(false)
+                    // generate from the cached data
+                } else {
+                    console.log('else')
+                    // run GPT code to generate new content
+                }
+            }
+        }
+    }, [articleTopic, cache_data])
+
+    // only run this code if we did not find a cached version of the data
+    
     // STEP 2: Get info from NYT API relavant to the current topic
     // Grabs the 10 most relevant NYT articles on a given topic between the user's last date of viewing
     // an article on this topic and today
@@ -92,13 +125,15 @@ export default function HomePage() {
     const [last_url, setLastURL] = useState(null);
     var articlesTextContent = {} // dictionary of the form {article_url: lead_paragraph}
     useEffect(() => {
-        if (articleTopic && user_data && (! articleTopic.includes('N/A'))) {
+        if (run_code && hasRunCache && articleTopic && user_data && (! articleTopic.includes('N/A'))) {
+            console.log('YEAH')
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = null;
             if (user_data[articleTopic]) {
                 start_date = new Date(user_data[articleTopic].last_date)
                 if (! date_viewed) {
                     setDateViewed(user_data[articleTopic].last_date)
+                    writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev`, user_data[articleTopic].last_date);
                 }
                 if (! last_url) {
                     setLastURL(user_data[articleTopic].last_article_url)
@@ -108,6 +143,7 @@ export default function HomePage() {
                 start_date.setDate(start_date.getDate() - 7)
                 if (! date_viewed) {
                     setDateViewed('N/A')
+                    writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev`, getTodayDate());
                 }
                 if (! last_url) {
                     setLastURL('First article viewed on this topic!')
@@ -131,9 +167,9 @@ export default function HomePage() {
                 .then(data => setArticles(data.response.docs))
                 .catch(error => console.log("error", error));
         }
-    }, [articleTopic, user_data]);
+    }, [articleTopic, user_data, run_code, hasRunCache]);
     useEffect(() => {
-        if (articles.length > 0) {
+        if (run_code && hasRunCache && articles.length > 0) {
             console.log('articles length', articles.length)
             for (let i = 0; i < articles.length; i++) {
                 // note: for now setting the value to the article's lead paragraph
@@ -143,7 +179,7 @@ export default function HomePage() {
                 console.log("article", i, "title", articles[i].headline.main);
             }
         }
-    }, [articles])
+    }, [articles, run_code, hasRunCache])
 
     // Helper for NYT API date formatting
     function dateToNYTString(date) {
@@ -184,7 +220,7 @@ export default function HomePage() {
     }
     const [runRelevant, setRunRelevant] = useState(false)
     useEffect(() => {
-        if (!runRelevant && articles.length > 0) {
+        if (run_code && hasRunCache && !runRelevant && articles.length > 0) {
             setRunRelevant(true)
 
             let relevantGPTCall = `I am going to give you a list of lead paragraphs from News Stories. 
@@ -195,12 +231,30 @@ export default function HomePage() {
             console.log(relevantGPTCall)
             RelevantUpdatesGPTResponse(relevantGPTCall)
         }
-    }, [articles])
+    }, [articles, run_code, hasRunCache])
     // split the response into bullet points
     var relevantUpdatesBullets = relevantUpdatesResponse ? relevantUpdatesResponse.split('- ') : null
-    if (relevantUpdatesBullets) relevantUpdatesBullets.shift()
+    if (relevantUpdatesBullets) {
+        relevantUpdatesBullets.shift()
+    }
 
     // REACT CODE - FRONTEND STUFF
+    if (! run_code) {
+        let personal_cache = cache_data[articleTopic]
+        let data = {
+
+        }
+        return (
+            <>
+                <div className="curr-user-div">
+                    <div className="curr-user-banner">Current User: {curr_user}</div>
+                </div>
+                <LeftOffPage last_url={personal_cache.last_url} bullet_points={["", "", "", ""]} date_viewed={personal_cache.last_date_prev} topic={articleTopic}/>
+                <UpdatesPage recent={false} bullet_points={personal_cache.last_output} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles}/>
+            </>
+            // cache: last_url, sourceUrls, sourceTitles
+        )
+    }
     if (curr_url && (! curr_url.includes('nytimes'))) {
         return (
             <div className="loading-div">
@@ -223,6 +277,11 @@ export default function HomePage() {
         )
     }
     if (articleTopic && user_data && relevantUpdatesBullets) {
+        writeToDb(`/cache/${curr_user}/${articleTopic}/last_output`, relevantUpdatesBullets);
+        writeToDb(`/cache/${curr_user}/${articleTopic}/last_url`, curr_url);
+        writeToDb(`/cache/${curr_user}/${articleTopic}/sourcesUrls`, sourcesUrls);
+        writeToDb(`/cache/${curr_user}/${articleTopic}/sourcesTitles`, sourcesTitles);
+        writeToDb(`/cache/${curr_user}/${articleTopic}/last_date`, getTodayDate());
         if (! articleTopic.includes('N/A')) {
             return (<>
                         <div className="curr-user-div">
