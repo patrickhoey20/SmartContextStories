@@ -1,6 +1,5 @@
 import React from "react";
 import './LeftOffPage.css';
-import { TextField } from "@mui/material";
 
 export const LeftOffPage = (props) => {
     const { last_url, date_viewed, topic } = props;

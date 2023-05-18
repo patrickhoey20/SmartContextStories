@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import HomePage from './components/HomePage/HomePage'
+import { useState } from 'react';
+import LoginPage from './components/LoginPage/LoginPage';
 
 function App() {
 
   return (
     <div className="App">
-      <HomePage />
+      <LoginPage />
     </div>
   )
 }

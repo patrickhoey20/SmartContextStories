@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import './HomePage.css';
-import { useDbData, writeToDb } from "../../utilities/firebase.js";
+import { useDbData, writeToDb, usersHasEntry } from "../../utilities/firebase.js";
 import { LeftOffPage } from "../LeftOffPage/LeftOffPage";
 import { UpdatesPage } from "../UpdatesPage/UpdatesPage";
 import { ChatGPTCall } from "../../utilities/api";
 import { LinearProgress } from "@mui/material";
 
-export default function HomePage() {
+export const HomePage = (props) => {
+    const { currUser } = props;
+    console.log("curr user from login", currUser);
     // FIREBASE STUFF
     const [current_user, setCurrentUser] = useState(null)
     // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
@@ -16,7 +18,13 @@ export default function HomePage() {
             setCurrentUser(userInfo)
         });
     }, [])
-    var curr_user = 'Joe Shmoe' // change this based on user id from Google later
+
+    var curr_user = currUser;
+    if (!usersHasEntry(curr_user)) {
+        writeToDb(`/users/${curr_user}`, { 'username': curr_user });
+        writeToDb(`/cache/${curr_user}`, { 'username': curr_user });
+    }
+
     const [data, error] = useDbData('/');
     const [user_data, setUserData] = useState(null)
     const [cache_data, setCacheData] = useState(null)

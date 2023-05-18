@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase, onValue, ref, update, set, push, remove } from "firebase/database";// TODO: Add SDKs for Firebase products that you want to use
+import { getDatabase, get, equalTo, onValue, ref, query, update, set, push, remove } from "firebase/database";// TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
@@ -39,4 +39,24 @@ export const useDbData = (path) => {
 
 export const writeToDb = (path, data) => {
   set(ref(database, path), data);
+}
+
+export const usersHasEntry = (user) => {
+  const usersRef = ref(database, "/users");
+  const userQuery = query(usersRef, equalTo("username", user));
+
+  get(userQuery)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        console.log("User " + user + " exists in database");
+        return true;
+      } else {
+        console.log("User " + user + " does not exist in database");
+        return false;
+      }
+    })
+    .catch((error) => {
+      console.log("Error getting data: " + error);
+    })
+  return false;
 }

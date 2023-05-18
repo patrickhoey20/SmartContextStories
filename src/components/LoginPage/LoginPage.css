@@ -1,0 +1,54 @@
+.centering {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.login-card {
+    border-radius: 30px;
+    background-color: rgb(230, 227, 227);
+    color: #242424;
+    width: 80%;
+    margin-top: 2.5%;
+    margin-bottom: 2.5%;
+    font-family: 'Iowan Old Style Bold';
+    padding: 5%;
+    min-height: 15vh;
+}
+
+.login-card-contents {
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 5%;
+}
+
+.card-h1 {
+    font-size: 2rem;
+}
+
+.card-h2 {
+    padding-top: 2.5%;
+    font-size: 1.5rem;
+}
+
+.card-h5 {
+    font-size: 0.9rem;
+    color: #4e4e4e;
+}
+
+.card-input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: "Iowan Old Style Bold";
+    height: 2.5rem;
+    font-size: 1rem;
+}
+
+.login-button {
+    margin-top: 5%;
+    width: 100%;
+    font-family: "Iowan Old Style Bold";
+    height: 2.5rem;
+    font-size: 1rem;
+}
