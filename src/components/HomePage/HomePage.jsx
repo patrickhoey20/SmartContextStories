@@ -11,34 +11,33 @@ export const HomePage = (props) => {
     console.log("curr user from login", currUser);
     // FIREBASE STUFF
     const [current_user, setCurrentUser] = useState(null)
-    // Jeff Bezos only has one topic in the DB, Joe Shmoe has all of them
-    useEffect(() => {
-        chrome.identity.getProfileUserInfo((userInfo) => {
-            console.log(userInfo)
-            setCurrentUser(userInfo)
-        });
-    }, [])
-
     var curr_user = currUser;
-    if (!usersHasEntry(curr_user)) {
-        writeToDb(`/users/${curr_user}`, { 'username': curr_user });
-        writeToDb(`/cache/${curr_user}`, { 'username': curr_user });
-    }
 
     const [data, error] = useDbData('/');
+    const [runGetDataInit, setRunGetDataInit] = useState(false)
+    useEffect(() => {
+        if (data) {
+            if (! data.users[curr_user]) {
+                writeToDb(`/users/${curr_user}`, { 'username': curr_user });
+                writeToDb(`/cache/${curr_user}`, { 'username': curr_user });
+            }
+            setRunGetDataInit(true)
+        }
+    }, [data])
+
     const [user_data, setUserData] = useState(null)
     const [cache_data, setCacheData] = useState(null)
     const [runGetData, setRunGetData] = useState(false)
     useEffect(() => {
         if (data) {
-            if (! runGetData) {
+            if ((! runGetData) && runGetDataInit) {
                 setRunGetData(true)
                 setUserData(data.users[curr_user])
                 setCacheData(data.cache[curr_user])
                 console.log("setting user_data to", data.users[curr_user])
             }
         }
-    }, [data])
+    }, [data, runGetDataInit])
 
     // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
     // "topics" below is a list of NYT Article Keywords (subjects, specifically)

@@ -10,14 +10,27 @@ export const LeftOffPage = (props) => {
         var daysPassed = Math.floor(timeDiff / (1000 * 3600 * 24));
         return daysPassed;
     }
-    return (
-        <div className="centering">
-            <div className="leftoff-card">
-                <div className="leftoff-card-contents">
-                    <div className="card-h2">Here's what you missed about <span className="topic">{topic}</span></div>
-                    <div className="card-h5">Since <a href={last_url} target="_blank">{date_viewed}</a> ({getDaysPassed(date_viewed)} days ago)</div>
+    if (date_viewed != 'N/A') {
+        return (
+            <div className="centering">
+                <div className="leftoff-card">
+                    <div className="leftoff-card-contents">
+                        <div className="card-h2">Here's what you missed about <span className="topic">{topic}</span></div>
+                        <div className="card-h5">Since <a href={last_url} target="_blank">{date_viewed}</a> ({getDaysPassed(date_viewed)} days ago)</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    )
+        )
+    } else {
+        return (
+            <div className="centering">
+                <div className="leftoff-card">
+                    <div className="leftoff-card-contents">
+                        <div className="card-h2">Here's what you missed about <span className="topic">{topic}</span></div>
+                        <div className="card-h5">First article viewed on this topic!</div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 }
