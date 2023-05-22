@@ -4,6 +4,6 @@
     "version": "1.0.0",
     "action": { "default_popup": "index.html" },
     "permissions": [
-      "tabs", "identity", "identity.email"
+      "tabs", "identity", "identity.email", "storage"
     ]
   }

@@ -1,16 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './LoginPage.css'
 import { HomePage } from "../HomePage/HomePage";
+import { saveUsername, getUsername } from '../../utilities/storage';
 
 export default function LoginPage() {
     const [currUser, setCurrUser] = useState("");
     const [hasRender, setRender] = useState(false);
+    const [cachedUser, setCachedUser] = useState(false);
     const onShow = React.useCallback(() => setRender(true), []);
 
     const getInput = (t) => {
-        console.log(t);
+        saveUsername(t);
         setCurrUser(t);
     }
+
+    useEffect(() => {
+        let username = getUsername()
+        console.log(username)
+        if (username) {
+            setCachedUser(true)
+            setCurrUser(username);
+            onShow()
+        }
+      }, []);
 
     return (
         <>
@@ -24,7 +36,7 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
-            {hasRender && <HomePage currUser={currUser}/>}
+            {(hasRender || cachedUser) && <HomePage currUser={currUser}/>}
         </>
     )
 }
