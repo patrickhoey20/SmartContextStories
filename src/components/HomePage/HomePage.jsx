@@ -256,8 +256,8 @@ export const HomePage = (props) => {
                 <div className="curr-user-div">
                     <div className="curr-user-banner">Current User: {curr_user}</div>
                 </div>
-                <LeftOffPage last_url={personal_cache.last_url} bullet_points={["", "", "", ""]} date_viewed={personal_cache.last_date_prev} topic={articleTopic}/>
-                <UpdatesPage recent={false} bullet_points={personal_cache.last_output} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles}/>
+                <LeftOffPage recent={false} last_url={personal_cache.last_url} bullet_points={personal_cache.last_output} date_viewed={personal_cache.last_date_prev} topic={articleTopic} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles}/>
+                {/* <UpdatesPage recent={false} bullet_points={personal_cache.last_output} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles}/> */}
             </>
             // cache: last_url, sourceUrls, sourceTitles
         )
@@ -294,8 +294,8 @@ export const HomePage = (props) => {
                         <div className="curr-user-div">
                             <div className="curr-user-banner">Current User: {curr_user}</div>
                         </div>
-                        <LeftOffPage last_url={last_url} bullet_points={["", "", "", ""]} date_viewed={date_viewed} topic={articleTopic}/>
-                        <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/>
+                        <LeftOffPage recent={false} last_url={last_url} bullet_points={relevantUpdatesBullets} date_viewed={date_viewed} topic={articleTopic} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/>
+                        {/* <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/> */}
                     </>)
         }
     } else {
