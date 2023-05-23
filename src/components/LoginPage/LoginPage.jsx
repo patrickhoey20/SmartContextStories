@@ -36,7 +36,7 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
-            {(hasRender || cachedUser) && <HomePage currUser={currUser}/>}
+            {(hasRender || cachedUser) && <HomePage currUser={currUser} retry={false}/>}
         </>
     )
 }

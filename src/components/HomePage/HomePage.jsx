@@ -7,8 +7,7 @@ import { ChatGPTCall } from "../../utilities/api";
 import { LinearProgress } from "@mui/material";
 
 export const HomePage = (props) => {
-    const { currUser } = props;
-    console.log("curr user from login", currUser);
+    const { currUser, retry } = props;
     // FIREBASE STUFF
     const [current_user, setCurrentUser] = useState(null)
     var curr_user = currUser;
@@ -28,6 +27,7 @@ export const HomePage = (props) => {
     const [user_data, setUserData] = useState(null)
     const [cache_data, setCacheData] = useState(null)
     const [runGetData, setRunGetData] = useState(false)
+
     useEffect(() => {
         if (data) {
             if ((! runGetData) && runGetDataInit) {
@@ -35,9 +35,12 @@ export const HomePage = (props) => {
                 setUserData(data.users[curr_user])
                 setCacheData(data.cache[curr_user])
                 console.log("setting user_data to", data.users[curr_user])
+                console.log("setting cache date to", data.cache[curr_user])
             }
         }
     }, [data, runGetDataInit])
+
+    const [nytError, setNYTError] = useState(false)
 
     // STEP 1: GET CURRENT URL, IDENTIFY TOPIC FROM PRE-DETERMINED LIST USING CHAT-GPT
     // "topics" below is a list of NYT Article Keywords (subjects, specifically)
@@ -68,7 +71,7 @@ export const HomePage = (props) => {
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticleNYT(data.response.docs))
-                .catch(error => console.log("error", error));
+                .catch(error => setNYTError(true));
             setArticleNYTRun(true)
         }
     }, [curr_url])
@@ -109,7 +112,7 @@ export const HomePage = (props) => {
             console.log(articleTopic)
             let personal_cache = cache_data[articleTopic]
             // console.log('cache', personal_cache)
-            if (personal_cache) {
+            if (personal_cache && !retry) {
                 if (personal_cache.last_date === today) {
                     console.log('if')
                     setRunCode(false)
@@ -137,10 +140,21 @@ export const HomePage = (props) => {
             const apiKey = import.meta.env.VITE_NYT_API_KEY;
             var start_date = null;
             if (user_data[articleTopic]) {
-                start_date = new Date(user_data[articleTopic].last_date)
+                if (retry) {
+                    start_date = new Date(cache_data[articleTopic].last_date_prev)
+                } else {
+                    start_date = new Date(user_data[articleTopic].last_date)
+                }
                 if (! date_viewed) {
-                    setDateViewed(user_data[articleTopic].last_date)
-                    writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev`, user_data[articleTopic].last_date);
+                    if (retry) {
+                        setDateViewed(cache_data[articleTopic].last_date_prev_to_show)
+                    } else {
+                        setDateViewed(user_data[articleTopic].last_date)
+                    }
+                    if (!retry) {
+                        writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev`, user_data[articleTopic].last_date);
+                        writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev_to_show`, user_data[articleTopic].last_date);
+                    }
                 }
                 if (! last_url) {
                     setLastURL(user_data[articleTopic].last_article_url)
@@ -150,7 +164,8 @@ export const HomePage = (props) => {
                 start_date.setDate(start_date.getDate() - 7)
                 if (! date_viewed) {
                     setDateViewed('N/A')
-                    writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev`, getTodayDate());
+                    writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev`, getWeekAgoDate());
+                    writeToDb(`/cache/${curr_user}/${articleTopic}/last_date_prev_to_show`, getTodayDate());
                 }
                 if (! last_url) {
                     setLastURL('First article viewed on this topic!')
@@ -172,7 +187,7 @@ export const HomePage = (props) => {
             fetch(url)
                 .then(response => response.json())
                 .then(data => setArticles(data.response.docs))
-                .catch(error => console.log("error", error));
+                .catch(error => setNYTError(true));
         }
     }, [articleTopic, user_data, run_code, hasRunCache]);
     useEffect(() => {
@@ -197,9 +212,17 @@ export const HomePage = (props) => {
         return ymd;
     }
 
-    // Helper to get today's date in mm-dd-yyyy
+    // Helpers to get dates in mm-dd-yyyy
     function getTodayDate() {
         const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, "0");
+        const day = today.getDate().toString().padStart(2, "0");
+        return `${month}-${day}-${year}`;
+    }
+    function getWeekAgoDate() {
+        const today = new Date();
+        today.setDate(today.getDate() - 7)
         const year = today.getFullYear();
         const month = (today.getMonth() + 1).toString().padStart(2, "0");
         const day = today.getDate().toString().padStart(2, "0");
@@ -248,24 +271,23 @@ export const HomePage = (props) => {
     // REACT CODE - FRONTEND STUFF
     if (! run_code) {
         let personal_cache = cache_data[articleTopic]
-        let data = {
-
-        }
         return (
             <>
-                <div className="curr-user-div">
-                    <div className="curr-user-banner">Current User: {curr_user}</div>
-                </div>
-                <LeftOffPage recent={false} last_url={personal_cache.last_url} bullet_points={personal_cache.last_output} date_viewed={personal_cache.last_date_prev} topic={articleTopic} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles}/>
-                {/* <UpdatesPage recent={false} bullet_points={personal_cache.last_output} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles}/> */}
+                <LeftOffPage recent={false} last_url={personal_cache.last_url} bullet_points={personal_cache.last_output} date_viewed={personal_cache.last_date_prev_to_show} topic={articleTopic} sources_urls={personal_cache.sourcesUrls} sources_titles={personal_cache.sourcesTitles} curr_user={curr_user}/>
             </>
-            // cache: last_url, sourceUrls, sourceTitles
         )
     }
     if (curr_url && (! curr_url.includes('nytimes'))) {
         return (
             <div className="loading-div">
                 <h1 className="loading-message">This tool only works with New York Times articles :(</h1>
+            </div>
+        )
+    }
+    if (nytError) {
+        return (
+            <div className="loading-div">
+                <h1 className="loading-message">Too many New York Times API calls; wait 60 seconds</h1>
             </div>
         )
     }
@@ -291,17 +313,13 @@ export const HomePage = (props) => {
         writeToDb(`/cache/${curr_user}/${articleTopic}/last_date`, getTodayDate());
         if (! articleTopic.includes('N/A')) {
             return (<>
-                        <div className="curr-user-div">
-                            <div className="curr-user-banner">Current User: {curr_user}</div>
-                        </div>
-                        <LeftOffPage recent={false} last_url={last_url} bullet_points={relevantUpdatesBullets} date_viewed={date_viewed} topic={articleTopic} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/>
-                        {/* <UpdatesPage recent={false} bullet_points={relevantUpdatesBullets} sources_urls={sourcesUrls} sources_titles={sourcesTitles}/> */}
+                        <LeftOffPage recent={false} last_url={last_url} bullet_points={relevantUpdatesBullets} date_viewed={date_viewed} topic={articleTopic} sources_urls={sourcesUrls} sources_titles={sourcesTitles} curr_user={curr_user}/>
                     </>)
         }
     } else {
         return (<div className="loading-div">
                     <h1 className="loading-message">Loading...</h1>
-                    <LinearProgress color="success"/>
+                    <LinearProgress/>
                 </div>)
     }
 }
