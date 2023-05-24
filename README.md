@@ -79,6 +79,7 @@ Here is an example of how to use our extension:
 
 - [ ] Add Google authentication and login using Firebase
 - [ ] Add compatibility with any news outlet/website (apart from New York Times)
+- [ ] Expand list of topics
 - [ ] Upload extension on the Google Chrome Webstore
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
